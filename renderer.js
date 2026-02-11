@@ -2,6 +2,468 @@
    TASKFLOW — Renderer (Main Application Logic)
    ============================================ */
 
+// ─── I18n Translations ──────────────────────────────
+const translations = {
+  'pt-BR': {
+    // Sidebar
+    'sidebar.mySpace': 'Meu Espaço',
+    'sidebar.productiveDay': 'Dia produtivo!',
+    'sidebar.board': 'Quadro',
+    'sidebar.analytics': 'Análises',
+    'sidebar.timeline': 'Linha do Tempo',
+    'sidebar.settings': 'Configurações',
+    'sidebar.pomodoro': 'Cronômetro',
+    'sidebar.stats': 'Estatísticas',
+    'sidebar.total': 'Total',
+    'sidebar.pending': 'Pendente',
+    'sidebar.wip': 'Em Progresso',
+    'sidebar.done': 'Concluído',
+    'sidebar.productivity': 'Produtividade',
+    'sidebar.tasksCompleted': 'Tarefas Concluídas',
+    'sidebar.filterByTag': 'Filtrar por Tag',
+    // Header
+    'header.search': 'Buscar tarefas...',
+    'header.allPriorities': 'Todas Prioridades',
+    'header.critical': 'Crítica',
+    'header.high': 'Alta',
+    'header.medium': 'Média',
+    'header.low': 'Baixa',
+    'header.newest': 'Mais Recentes',
+    'header.oldest': 'Mais Antigos',
+    'header.byPriority': 'Por Prioridade',
+    'header.byDueDate': 'Por Prazo',
+    'header.manualOrder': 'Ordem Manual',
+    'header.select': 'Selecionar',
+    'header.cancel': 'Cancelar',
+    'header.newTask': 'Nova Tarefa',
+    // Bulk
+    'bulk.selected': 'selecionada(s)',
+    'bulk.pending': 'Pendente',
+    'bulk.wip': 'Em Progresso',
+    'bulk.done': 'Concluído',
+    'bulk.delete': 'Excluir',
+    // Board
+    'board.pending': 'Pendente',
+    'board.wip': 'Em Progresso',
+    'board.done': 'Concluído',
+    'board.emptyPending': 'Nenhuma tarefa pendente',
+    'board.emptyWip': 'Nada em progresso',
+    'board.emptyDone': 'Nenhuma tarefa concluída',
+    // Modal
+    'modal.newTask': 'Nova Tarefa',
+    'modal.editTask': 'Editar Tarefa',
+    'modal.createTask': 'Criar Tarefa',
+    'modal.saveChanges': 'Salvar Alterações',
+    'modal.title': 'Título',
+    'modal.titlePlaceholder': 'O que precisa ser feito?',
+    'modal.description': 'Descrição',
+    'modal.descPlaceholder': 'Adicione mais detalhes...',
+    'modal.notes': 'Notas / Comentários',
+    'modal.notesPlaceholder': 'Anotações, links, referências...',
+    'modal.notesHint': 'Texto livre para anotações adicionais sobre esta tarefa',
+    'modal.priority': 'Prioridade',
+    'modal.dueDate': 'Prazo',
+    'modal.status': 'Status',
+    'modal.recurrence': 'Repetição',
+    'modal.none': 'Nenhuma',
+    'modal.daily': 'Diária',
+    'modal.weekly': 'Semanal',
+    'modal.monthly': 'Mensal',
+    'modal.tags': 'Tags',
+    'modal.subtasks': 'Subtarefas',
+    'modal.items': 'itens',
+    'modal.addSubtask': 'Adicionar subtarefa...',
+    'modal.add': 'Adicionar',
+    'modal.delete': 'Excluir',
+    'modal.cancel': 'Cancelar',
+    // Confirm
+    'confirm.deleteTask': 'Excluir esta tarefa?',
+    'confirm.deleteTaskMsg': 'será excluída permanentemente.',
+    'confirm.areYouSure': 'Tem certeza?',
+    'confirm.cannotUndo': 'Esta ação não pode ser desfeita.',
+    'confirm.cancel': 'Cancelar',
+    'confirm.delete': 'Excluir',
+    'confirm.import': 'Importar dados?',
+    'confirm.importMsg': 'Isso substituirá todos os seus dados atuais. Considere exportar um backup antes de prosseguir.',
+    // Toast
+    'toast.taskCreated': 'Tarefa criada',
+    'toast.taskUpdated': 'Tarefa atualizada',
+    'toast.taskDeleted': 'Tarefa excluída',
+    'toast.undoHint': '(Ctrl+Z para desfazer)',
+    'toast.movedTo': 'Movido para',
+    'toast.exportSuccess': 'Dados exportados com sucesso!',
+    'toast.exportError': 'Erro ao exportar: ',
+    'toast.importSuccess': 'Dados importados com sucesso!',
+    'toast.importError': 'Erro ao importar: ',
+    'toast.tagAdded': 'Tag adicionada!',
+    'toast.tagRemoved': 'Tag removida!',
+    'toast.undone': 'Ação desfeita!',
+    'toast.pomodoroFocusDone': 'Sessão de foco concluída! Hora de uma pausa.',
+    'toast.pomodoroBreakDone': 'Pausa terminada! Pronto para focar de novo?',
+    'toast.tasksMoved': 'tarefa(s) movida(s) para',
+    'toast.tasksDeleted': 'tarefa(s) excluída(s)',
+    'toast.cleared': 'Tarefas concluídas limpas',
+    // Analytics
+    'analytics.weeklyActivity': 'Atividade Semanal',
+    'analytics.distribution': 'Distribuição',
+    'analytics.streak': 'Sequência',
+    'analytics.daysInRow': 'Dias Seguidos',
+    'analytics.tasksByTag': 'Tarefas por Tag',
+    // Timeline
+    'timeline.title': 'Linha do Tempo',
+    'timeline.subtitle': 'Visão geral das tarefas por prazo',
+    'timeline.empty': 'Nenhuma tarefa ainda. Crie tarefas para vê-las aqui.',
+    'timeline.noDate': 'Sem Prazo Definido',
+    // Settings
+    'settings.title': 'Configurações',
+    'settings.subtitle': 'Personalize seu TaskFlow',
+    'settings.theme': 'Tema',
+    'settings.themeDesc': 'Escolha a aparência do seu dashboard',
+    'settings.tags': 'Tags Personalizadas',
+    'settings.tagsDesc': 'Gerencie as tags disponíveis para suas tarefas',
+    'settings.newTagPlaceholder': 'Nome da nova tag...',
+    'settings.addTag': 'Adicionar',
+    'settings.notifications': 'Notificações',
+    'settings.notificationsDesc': 'Configure alertas para prazos das suas tarefas',
+    'settings.notifyOverdue': 'Notificar tarefas atrasadas',
+    'settings.notifyToday': 'Notificar tarefas que vencem hoje',
+    'settings.notifyTomorrow': 'Notificar tarefas que vencem amanhã',
+    'settings.data': 'Dados',
+    'settings.dataDesc': 'Exporte ou importe seus dados para backup',
+    'settings.export': 'Exportar Dados',
+    'settings.exportDesc': 'Salvar backup como arquivo JSON',
+    'settings.import': 'Importar Dados',
+    'settings.importDesc': 'Restaurar de um arquivo JSON',
+    'settings.about': 'Sobre',
+    'settings.aboutDesc': 'Dashboard de organização de tarefas',
+    'settings.checkUpdates': 'Verificar Atualizações',
+    'settings.checkUpdatesDesc': 'Clique para buscar novas versões',
+    'settings.checking': 'Verificando...',
+    'settings.devMode': 'Verificação desativada no modo de desenvolvimento.',
+    'settings.upToDate': 'Você está na versão mais recente!',
+    'settings.checkError': 'Erro ao verificar atualizações.',
+    'settings.language': 'Idioma',
+    'settings.languageDesc': 'Escolha o idioma da interface',
+    // Pomodoro
+    'pomodoro.title': 'Cronômetro',
+    'pomodoro.focus': 'Foco',
+    'pomodoro.shortBreak': 'Pausa Curta',
+    'pomodoro.longBreak': 'Pausa Longa',
+    'pomodoro.start': 'Iniciar',
+    'pomodoro.pause': 'Pausar',
+    'pomodoro.continue': 'Continuar',
+    'pomodoro.sessions': 'Sessões',
+    'pomodoro.totalTime': 'Tempo Total',
+    'pomodoro.linkTask': 'Vincular tarefa:',
+    'pomodoro.noTask': 'Nenhuma tarefa selecionada',
+    'pomodoro.none': 'Nenhuma',
+    'pomodoro.minimize': 'Minimizar',
+    'pomodoro.closeBtn': 'Fechar',
+    'pomodoro.closeConfirm': 'Fechar Cronômetro?',
+    'pomodoro.closeMsg': 'O cronômetro ainda está rodando. Deseja fechar?',
+    // Recurrence
+    'rec.daily': 'Diária',
+    'rec.weekly': 'Semanal',
+    'rec.monthly': 'Mensal',
+    // Status
+    'status.pending': 'Pendente',
+    'status.wip': 'Em Progresso',
+    'status.done': 'Concluído',
+    // Update banner
+    'update.newVersion': 'Nova versão disponível!',
+    'update.readyDownload': 'Uma atualização está pronta para download.',
+    'update.later': 'Depois',
+    'update.download': 'Baixar',
+    'update.versionAvailable': 'Nova versão {v} disponível!',
+    'update.downloadNow': 'Deseja baixar a atualização agora?',
+    'update.downloading': 'Baixando atualização...',
+    'update.dontClose': 'Não feche o aplicativo durante o download.',
+    'update.starting': 'Iniciando download...',
+    'update.ready': 'Atualização pronta!',
+    'update.restartToApply': 'Reinicie o app para aplicar a atualização.',
+    'update.restart': 'Reiniciar',
+    // Tray
+    'tray.open': 'Abrir TaskFlow',
+    'tray.quit': 'Sair',
+    // Misc
+    'misc.hasNotes': 'Contém notas',
+    'misc.deleteTask': 'Excluir tarefa',
+    'misc.removeSubtask': 'Remover subtarefa',
+    'misc.noItems': 'Nenhum item',
+    'misc.completed': 'concluídas',
+    'misc.noTags': 'Nenhuma tag criada',
+    'misc.removeTag': 'Remover esta tag?',
+    'misc.removeTagMsg': 'A tag "{name}" será removida. Tarefas existentes manterão a tag.',
+    'misc.tagNameRequired': 'Digite um nome para a tag',
+    'misc.tagExists': 'Já existe uma tag com este nome',
+    'misc.tasks': 'tarefa(s)',
+    'misc.recurring': 'Tarefa recorrente ({rec}) recriada em Pendente',
+    // Date
+    'date.today': 'Hoje',
+    'date.tomorrow': 'Amanhã',
+    'date.yesterday': 'Ontem',
+    // Bulk
+    'bulk.deleteConfirm': 'Excluir {n} tarefa(s)?',
+    // Confirm close
+    'confirm.closePomodoro': 'Fechar Cronômetro?',
+    'confirm.closePomodoroMsg': 'O cronômetro ainda está rodando. Deseja fechar?',
+    // Theme names
+    'theme.midnight': 'Meia-Noite',
+    'theme.ocean': 'Oceano',
+    'theme.aurora': 'Aurora',
+    'theme.sunset': 'Pôr do Sol',
+    'theme.rose': 'Rosé',
+    'theme.snow': 'Neve',
+    // Weekdays
+    'days.mon': 'Seg', 'days.tue': 'Ter', 'days.wed': 'Qua',
+    'days.thu': 'Qui', 'days.fri': 'Sex', 'days.sat': 'Sáb', 'days.sun': 'Dom',
+  },
+  'en': {
+    // Sidebar
+    'sidebar.mySpace': 'My Space',
+    'sidebar.productiveDay': 'Productive day!',
+    'sidebar.board': 'Board',
+    'sidebar.analytics': 'Analytics',
+    'sidebar.timeline': 'Timeline',
+    'sidebar.settings': 'Settings',
+    'sidebar.pomodoro': 'Timer',
+    'sidebar.stats': 'Statistics',
+    'sidebar.total': 'Total',
+    'sidebar.pending': 'Pending',
+    'sidebar.wip': 'In Progress',
+    'sidebar.done': 'Done',
+    'sidebar.productivity': 'Productivity',
+    'sidebar.tasksCompleted': 'Tasks Completed',
+    'sidebar.filterByTag': 'Filter by Tag',
+    // Header
+    'header.search': 'Search tasks...',
+    'header.allPriorities': 'All Priorities',
+    'header.critical': 'Critical',
+    'header.high': 'High',
+    'header.medium': 'Medium',
+    'header.low': 'Low',
+    'header.newest': 'Newest First',
+    'header.oldest': 'Oldest First',
+    'header.byPriority': 'By Priority',
+    'header.byDueDate': 'By Due Date',
+    'header.manualOrder': 'Manual Order',
+    'header.select': 'Select',
+    'header.cancel': 'Cancel',
+    'header.newTask': 'New Task',
+    // Bulk
+    'bulk.selected': 'selected',
+    'bulk.pending': 'Pending',
+    'bulk.wip': 'In Progress',
+    'bulk.done': 'Done',
+    'bulk.delete': 'Delete',
+    // Board
+    'board.pending': 'Pending',
+    'board.wip': 'In Progress',
+    'board.done': 'Done',
+    'board.emptyPending': 'No pending tasks',
+    'board.emptyWip': 'Nothing in progress',
+    'board.emptyDone': 'No completed tasks',
+    // Modal
+    'modal.newTask': 'New Task',
+    'modal.editTask': 'Edit Task',
+    'modal.createTask': 'Create Task',
+    'modal.saveChanges': 'Save Changes',
+    'modal.title': 'Title',
+    'modal.titlePlaceholder': 'What needs to be done?',
+    'modal.description': 'Description',
+    'modal.descPlaceholder': 'Add more details...',
+    'modal.notes': 'Notes / Comments',
+    'modal.notesPlaceholder': 'Notes, links, references...',
+    'modal.notesHint': 'Free text for additional notes about this task',
+    'modal.priority': 'Priority',
+    'modal.dueDate': 'Due Date',
+    'modal.status': 'Status',
+    'modal.recurrence': 'Recurrence',
+    'modal.none': 'None',
+    'modal.daily': 'Daily',
+    'modal.weekly': 'Weekly',
+    'modal.monthly': 'Monthly',
+    'modal.tags': 'Tags',
+    'modal.subtasks': 'Subtasks',
+    'modal.items': 'items',
+    'modal.addSubtask': 'Add subtask...',
+    'modal.add': 'Add',
+    'modal.delete': 'Delete',
+    'modal.cancel': 'Cancel',
+    // Confirm
+    'confirm.deleteTask': 'Delete this task?',
+    'confirm.deleteTaskMsg': 'will be permanently deleted.',
+    'confirm.areYouSure': 'Are you sure?',
+    'confirm.cannotUndo': 'This action cannot be undone.',
+    'confirm.cancel': 'Cancel',
+    'confirm.delete': 'Delete',
+    'confirm.import': 'Import data?',
+    'confirm.importMsg': 'This will replace all your current data. Consider exporting a backup first.',
+    // Toast
+    'toast.taskCreated': 'Task created',
+    'toast.taskUpdated': 'Task updated',
+    'toast.taskDeleted': 'Task deleted',
+    'toast.undoHint': '(Ctrl+Z to undo)',
+    'toast.movedTo': 'Moved to',
+    'toast.exportSuccess': 'Data exported successfully!',
+    'toast.exportError': 'Export error: ',
+    'toast.importSuccess': 'Data imported successfully!',
+    'toast.importError': 'Import error: ',
+    'toast.tagAdded': 'Tag added!',
+    'toast.tagRemoved': 'Tag removed!',
+    'toast.undone': 'Action undone!',
+    'toast.pomodoroFocusDone': 'Focus session complete! Time for a break.',
+    'toast.pomodoroBreakDone': 'Break is over! Ready to focus again?',
+    'toast.tasksMoved': 'task(s) moved to',
+    'toast.tasksDeleted': 'task(s) deleted',
+    'toast.cleared': 'Completed tasks cleared',
+    // Analytics
+    'analytics.weeklyActivity': 'Weekly Activity',
+    'analytics.distribution': 'Distribution',
+    'analytics.streak': 'Streak',
+    'analytics.daysInRow': 'Days in a Row',
+    'analytics.tasksByTag': 'Tasks by Tag',
+    // Timeline
+    'timeline.title': 'Timeline',
+    'timeline.subtitle': 'Overview of tasks by due date',
+    'timeline.empty': 'No tasks yet. Create tasks to see them here.',
+    'timeline.noDate': 'No Due Date',
+    // Settings
+    'settings.title': 'Settings',
+    'settings.subtitle': 'Customize your TaskFlow',
+    'settings.theme': 'Theme',
+    'settings.themeDesc': 'Choose the appearance of your dashboard',
+    'settings.tags': 'Custom Tags',
+    'settings.tagsDesc': 'Manage the tags available for your tasks',
+    'settings.newTagPlaceholder': 'New tag name...',
+    'settings.addTag': 'Add',
+    'settings.notifications': 'Notifications',
+    'settings.notificationsDesc': 'Set alerts for your task deadlines',
+    'settings.notifyOverdue': 'Notify overdue tasks',
+    'settings.notifyToday': 'Notify tasks due today',
+    'settings.notifyTomorrow': 'Notify tasks due tomorrow',
+    'settings.data': 'Data',
+    'settings.dataDesc': 'Export or import your data for backup',
+    'settings.export': 'Export Data',
+    'settings.exportDesc': 'Save backup as JSON file',
+    'settings.import': 'Import Data',
+    'settings.importDesc': 'Restore from a JSON file',
+    'settings.about': 'About',
+    'settings.aboutDesc': 'Task organization dashboard',
+    'settings.checkUpdates': 'Check for Updates',
+    'settings.checkUpdatesDesc': 'Click to check for new versions',
+    'settings.checking': 'Checking...',
+    'settings.devMode': 'Update check disabled in development mode.',
+    'settings.upToDate': 'You are on the latest version!',
+    'settings.checkError': 'Error checking for updates.',
+    'settings.language': 'Language',
+    'settings.languageDesc': 'Choose the interface language',
+    // Pomodoro
+    'pomodoro.title': 'Timer',
+    'pomodoro.focus': 'Focus',
+    'pomodoro.shortBreak': 'Short Break',
+    'pomodoro.longBreak': 'Long Break',
+    'pomodoro.start': 'Start',
+    'pomodoro.pause': 'Pause',
+    'pomodoro.continue': 'Resume',
+    'pomodoro.sessions': 'Sessions',
+    'pomodoro.totalTime': 'Total Time',
+    'pomodoro.linkTask': 'Link task:',
+    'pomodoro.noTask': 'No task selected',
+    'pomodoro.none': 'None',
+    'pomodoro.minimize': 'Minimize',
+    'pomodoro.closeBtn': 'Close',
+    'pomodoro.closeConfirm': 'Close Timer?',
+    'pomodoro.closeMsg': 'The timer is still running. Close anyway?',
+    // Recurrence
+    'rec.daily': 'Daily',
+    'rec.weekly': 'Weekly',
+    'rec.monthly': 'Monthly',
+    // Status
+    'status.pending': 'Pending',
+    'status.wip': 'In Progress',
+    'status.done': 'Done',
+    // Update banner
+    'update.newVersion': 'New version available!',
+    'update.readyDownload': 'An update is ready to download.',
+    'update.later': 'Later',
+    'update.download': 'Download',
+    'update.versionAvailable': 'New version {v} available!',
+    'update.downloadNow': 'Would you like to download the update now?',
+    'update.downloading': 'Downloading update...',
+    'update.dontClose': 'Do not close the app during the download.',
+    'update.starting': 'Starting download...',
+    'update.ready': 'Update ready!',
+    'update.restartToApply': 'Restart the app to apply the update.',
+    'update.restart': 'Restart',
+    // Tray
+    'tray.open': 'Open TaskFlow',
+    'tray.quit': 'Quit',
+    // Misc
+    'misc.hasNotes': 'Has notes',
+    'misc.deleteTask': 'Delete task',
+    'misc.removeSubtask': 'Remove subtask',
+    'misc.noItems': 'No items',
+    'misc.completed': 'completed',
+    'misc.noTags': 'No tags created',
+    'misc.removeTag': 'Remove this tag?',
+    'misc.removeTagMsg': 'The tag "{name}" will be removed. Existing tasks will keep the tag.',
+    'misc.tagNameRequired': 'Enter a tag name',
+    'misc.tagExists': 'A tag with this name already exists',
+    'misc.tasks': 'task(s)',
+    'misc.recurring': 'Recurring task ({rec}) recreated in Pending',
+    // Date
+    'date.today': 'Today',
+    'date.tomorrow': 'Tomorrow',
+    'date.yesterday': 'Yesterday',
+    // Bulk
+    'bulk.deleteConfirm': 'Delete {n} task(s)?',
+    // Confirm close
+    'confirm.closePomodoro': 'Close Timer?',
+    'confirm.closePomodoroMsg': 'The timer is still running. Close anyway?',
+    // Theme names
+    'theme.midnight': 'Midnight',
+    'theme.ocean': 'Ocean',
+    'theme.aurora': 'Aurora',
+    'theme.sunset': 'Sunset',
+    'theme.rose': 'Rosé',
+    'theme.snow': 'Snow',
+    // Weekdays
+    'days.mon': 'Mon', 'days.tue': 'Tue', 'days.wed': 'Wed',
+    'days.thu': 'Thu', 'days.fri': 'Fri', 'days.sat': 'Sat', 'days.sun': 'Sun',
+  }
+};
+
+let currentLang = 'pt-BR';
+
+function t(key) {
+  return translations[currentLang]?.[key] || translations['pt-BR']?.[key] || key;
+}
+
+function applyI18nToDOM() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = t(el.dataset.i18nTitle);
+  });
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  state.language = lang;
+  applyI18nToDOM();
+  render();
+  if (document.getElementById('settings-view').classList.contains('active')) {
+    renderSettings();
+  }
+  save();
+}
+
 // ─── Theme Definitions ───────────────────────────────
 const themes = {
   midnight: {
@@ -254,6 +716,14 @@ let pomodoroState = {
 
 // ─── Init ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+  // Listen for cold-start signal to show splash
+  window.api.onColdStart((isCold) => {
+    const splash = document.getElementById('splash-screen');
+    if (!isCold && splash) {
+      splash.remove(); // no splash on tray restore
+    }
+  });
+
   injectSVGGradient();
   const saved = await window.api.loadTasks();
   if (saved && saved.columns) {
@@ -274,6 +744,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Ensure theme exists
     if (!state.theme) state.theme = 'midnight';
   }
+
+  // Restore saved language
+  if (state.language) {
+    currentLang = state.language;
+    document.querySelectorAll('.lang-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === currentLang);
+    });
+  }
+
   applyTheme(state.theme);
   initEventListeners();
   initDragListeners();
@@ -294,6 +773,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Setup pomodoro timer
   initPomodoro();
+
+  // Dismiss splash after a short delay so the animation completes
+  const splash = document.getElementById('splash-screen');
+  if (splash) {
+    setTimeout(() => {
+      splash.classList.add('fade-out');
+      setTimeout(() => splash.remove(), 500);
+    }, 1200);
+  }
 });
 
 // ─── Auto-Updater UI ────────────────────────────────
@@ -323,11 +811,11 @@ function setupUpdateListeners() {
   // Listen for update events from main process
   window.api.onUpdateAvailable((info) => {
     updateState = 'available';
-    title.textContent = `Nova versão ${info.version} disponível!`;
-    desc.textContent = 'Deseja baixar a atualização agora?';
+    title.textContent = t('update.versionAvailable').replace('{v}', info.version);
+    desc.textContent = t('update.downloadNow');
     icon.className = 'ri-download-cloud-2-line';
     actionIcon.className = 'ri-download-2-line';
-    actionText.textContent = 'Baixar';
+    actionText.textContent = t('update.download');
     progressContainer.style.display = 'none';
     dismissBtn.style.display = '';
     showBanner();
@@ -339,8 +827,8 @@ function setupUpdateListeners() {
 
   window.api.onUpdateProgress((progress) => {
     updateState = 'downloading';
-    title.textContent = 'Baixando atualização...';
-    desc.textContent = 'Não feche o aplicativo durante o download.';
+    title.textContent = t('update.downloading');
+    desc.textContent = t('update.dontClose');
     icon.className = 'ri-loader-4-line spin';
     progressContainer.style.display = 'flex';
     progressFill.style.width = `${progress.percent}%`;
@@ -351,15 +839,15 @@ function setupUpdateListeners() {
 
   window.api.onUpdateDownloaded(() => {
     updateState = 'ready';
-    title.textContent = 'Atualização pronta!';
-    desc.textContent = 'Reinicie o app para aplicar a atualização.';
+    title.textContent = t('update.ready');
+    desc.textContent = t('update.restartToApply');
     icon.className = 'ri-checkbox-circle-line';
     progressContainer.style.display = 'none';
     actionBtn.style.display = '';
     actionIcon.className = 'ri-restart-line';
-    actionText.textContent = 'Reiniciar';
+    actionText.textContent = t('update.restart');
     dismissBtn.style.display = '';
-    dismissBtn.textContent = 'Depois';
+    dismissBtn.textContent = t('update.later');
     showBanner();
   });
 
@@ -373,7 +861,7 @@ function setupUpdateListeners() {
     if (updateState === 'available') {
       window.api.downloadUpdate();
       updateState = 'downloading';
-      title.textContent = 'Iniciando download...';
+      title.textContent = t('update.starting');
       icon.className = 'ri-loader-4-line spin';
       actionBtn.style.display = 'none';
       dismissBtn.style.display = 'none';
@@ -402,8 +890,8 @@ async function processRecurringTask(task) {
         state.columns = saved.columns;
         state.nextId = saved.nextId;
       }
-      const recLabels = { daily: 'diária', weekly: 'semanal', monthly: 'mensal' };
-      showToast(`Tarefa recorrente (${recLabels[task.recurrence]}) recriada em Pendente`, 'info');
+      const recLabels = { daily: t('rec.daily').toLowerCase(), weekly: t('rec.weekly').toLowerCase(), monthly: t('rec.monthly').toLowerCase() };
+      showToast(t('misc.recurring').replace('{rec}', recLabels[task.recurrence] || task.recurrence), 'info');
       render();
     }
   } catch (e) {
@@ -593,20 +1081,29 @@ function initEventListeners() {
     }
   });
 
+  // Language selector
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setLanguage(btn.dataset.lang);
+    });
+  });
+
   // Data export/import
   document.getElementById('btn-export-data').addEventListener('click', async () => {
     const result = await window.api.exportData();
     if (result.success) {
-      showToast('Dados exportados com sucesso!', 'success');
+      showToast(`${t('toast.exportSuccess')}`, 'success');
     } else if (!result.canceled) {
-      showToast('Erro ao exportar: ' + result.error, 'error');
+      showToast(t('toast.exportError') + result.error, 'error');
     }
   });
 
   document.getElementById('btn-import-data').addEventListener('click', () => {
     showConfirm(
-      'Importar dados?',
-      'Isso substituirá todos os seus dados atuais. Considere exportar um backup antes de prosseguir.',
+      t('confirm.import'),
+      t('confirm.importMsg'),
       async () => {
         const result = await window.api.importData();
         if (result.success) {
@@ -614,9 +1111,9 @@ function initEventListeners() {
           if (!state.theme) state.theme = 'midnight';
           applyTheme(state.theme);
           render();
-          showToast('Dados importados com sucesso!', 'success');
+          showToast(t('toast.importSuccess'), 'success');
         } else if (!result.canceled) {
-          showToast('Erro ao importar: ' + result.error, 'error');
+          showToast(t('toast.importError') + result.error, 'error');
         }
       }
     );
@@ -625,21 +1122,21 @@ function initEventListeners() {
   // Manual check for updates
   document.getElementById('btn-check-updates').addEventListener('click', async () => {
     const statusText = document.getElementById('update-status-text');
-    statusText.textContent = 'Verificando...';
+    statusText.textContent = t('settings.checking');
     try {
       const result = await window.api.checkForUpdates();
       if (result && result.dev) {
-        statusText.textContent = 'Verificação desativada no modo de desenvolvimento.';
+        statusText.textContent = t('settings.devMode');
       } else {
-        statusText.textContent = 'Você está na versão mais recente!';
+        statusText.textContent = t('settings.upToDate');
         // If update is found, the onUpdateAvailable listener will handle it
       }
     } catch (e) {
-      statusText.textContent = 'Erro ao verificar atualizações.';
+      statusText.textContent = t('settings.checkError');
     }
     // Reset text after a delay
     setTimeout(() => {
-      statusText.textContent = 'Clique para buscar novas versões';
+      statusText.textContent = t('settings.checkUpdatesDesc');
     }, 8000);
   });
 }
@@ -650,6 +1147,7 @@ function render() {
   renderStats();
   renderTagFilters();
   renderProgressRing();
+  applyI18nToDOM();
 }
 
 // ─── Board Rendering ─────────────────────────────────
@@ -666,16 +1164,23 @@ function renderBoard() {
       const empty = document.createElement('div');
       empty.className = 'empty-state';
       empty.innerHTML = col === 'pending'
-        ? '<i class="ri-inbox-line"></i><span>Nenhuma tarefa pendente</span>'
+        ? `<i class="ri-inbox-line"></i><span>${t('board.emptyPending')}</span>`
         : col === 'wip'
-        ? '<i class="ri-loader-4-line"></i><span>Nada em progresso</span>'
-        : '<i class="ri-checkbox-circle-line"></i><span>Nenhuma tarefa concluída</span>';
+        ? `<i class="ri-loader-4-line"></i><span>${t('board.emptyWip')}</span>`
+        : `<i class="ri-checkbox-circle-line"></i><span>${t('board.emptyDone')}</span>`;
       list.appendChild(empty);
     } else {
-      tasks.forEach(task => {
-        list.appendChild(createTaskCard(task, col));
+      tasks.forEach((task, i) => {
+        const card = createTaskCard(task, col);
+        card.style.animationDelay = `${i * 0.04}s`; // stagger entrance
+        list.appendChild(card);
       });
     }
+
+    // Bounce the column count badge
+    count.classList.remove('bounce');
+    void count.offsetWidth; // force reflow
+    count.classList.add('bounce');
   });
 }
 
@@ -804,7 +1309,7 @@ function createTaskCard(task, column) {
 
   let recurrenceHtml = '';
   if (task.recurrence) {
-    const recLabels = { daily: 'Diária', weekly: 'Semanal', monthly: 'Mensal' };
+    const recLabels = { daily: t('rec.daily'), weekly: t('rec.weekly'), monthly: t('rec.monthly') };
     recurrenceHtml = `
       <div class="task-card-recurrence">
         <i class="ri-repeat-line"></i>
@@ -820,7 +1325,7 @@ function createTaskCard(task, column) {
 
   let notesIndicator = '';
   if (task.notes) {
-    notesIndicator = `<span class="task-card-notes-icon" title="Contém notas"><i class="ri-sticky-note-line"></i></span>`;
+    notesIndicator = `<span class="task-card-notes-icon" title="${t('misc.hasNotes')}"><i class="ri-sticky-note-line"></i></span>`;
   }
 
   const selectCheck = selectionMode
@@ -830,7 +1335,7 @@ function createTaskCard(task, column) {
        </label>`
     : '';
 
-  const deleteBtn = `<button class="task-card-delete" title="Excluir tarefa"><i class="ri-delete-bin-6-line"></i></button>`;
+  const deleteBtn = `<button class="task-card-delete" title="${t('misc.deleteTask')}"><i class="ri-delete-bin-6-line"></i></button>`;
 
   card.innerHTML = `
     ${priorityBar}
@@ -855,7 +1360,7 @@ function createTaskCard(task, column) {
   card.querySelector('.task-card-delete').addEventListener('click', (e) => {
     e.stopPropagation();
     e.preventDefault();
-    showConfirm('Excluir esta tarefa?', `"${task.title}" será excluída permanentemente.`, () => {
+    showConfirm(t('confirm.deleteTask'), `"${task.title}" ${t('confirm.deleteTaskMsg')}`, () => {
       deleteTask(task.id);
     });
   });
@@ -1055,8 +1560,8 @@ function handleDrop(e, targetColumn) {
   save();
   render();
 
-  const statusNames = { pending: 'Pendente', wip: 'Em Progresso', done: 'Concluído' };
-  showToast(`Movido para ${statusNames[targetColumn]} (Ctrl+Z para desfazer)`, 'info');
+  const statusNames = { pending: t('status.pending'), wip: t('status.wip'), done: t('status.done') };
+  showToast(`${t('toast.movedTo')} ${statusNames[targetColumn]} ${t('toast.undoHint')}`, 'info');
 }
 
 // ─── Task Modal ──────────────────────────────────────
@@ -1075,8 +1580,8 @@ function openTaskModal(column = 'pending', task = null) {
 
   if (task) {
     editingTaskId = task.id;
-    title.textContent = 'Editar Tarefa';
-    saveBtn.textContent = 'Salvar Alterações';
+    title.textContent = t('modal.editTask');
+    saveBtn.textContent = t('modal.saveChanges');
     deleteBtn.style.display = 'flex';
 
     document.getElementById('task-title-input').value = task.title;
@@ -1088,8 +1593,8 @@ function openTaskModal(column = 'pending', task = null) {
     document.getElementById('task-notes-input').value = task.notes || '';
     document.getElementById('task-id-input').value = task.id;
   } else {
-    title.textContent = 'Nova Tarefa';
-    saveBtn.textContent = 'Criar Tarefa';
+    title.textContent = t('modal.newTask');
+    saveBtn.textContent = t('modal.createTask');
     deleteBtn.style.display = 'none';
     document.getElementById('task-column-input').value = column;
   }
@@ -1147,7 +1652,7 @@ function updateSubtaskCounter() {
   const items = document.querySelectorAll('#subtask-list .subtask-item');
   const done = document.querySelectorAll('#subtask-list .subtask-item input:checked').length;
   const el = document.getElementById('subtask-counter');
-  if (el) el.textContent = items.length === 0 ? 'Nenhum item' : `${done}/${items.length} concluídas`;
+  if (el) el.textContent = items.length === 0 ? t('misc.noItems') : `${done}/${items.length} ${t('misc.completed')}`;
 }
 
 function addSubtaskElement(container, text, completed = false) {
@@ -1159,7 +1664,7 @@ function addSubtaskElement(container, text, completed = false) {
       <span class="subtask-custom-check"><i class="ri-check-line"></i></span>
     </label>
     <span class="subtask-text ${completed ? 'completed' : ''}">${escapeHtml(text)}</span>
-    <button type="button" class="subtask-remove" title="Remover subtarefa"><i class="ri-delete-bin-line"></i></button>
+    <button type="button" class="subtask-remove" title="${t('misc.removeSubtask')}"><i class="ri-delete-bin-line"></i></button>
   `;
 
   item.querySelector('input').addEventListener('change', (e) => {
@@ -1247,7 +1752,7 @@ function saveTask() {
         break;
       }
     }
-    if (found) showToast('Tarefa atualizada', 'success');
+    if (found) showToast(t('toast.taskUpdated'), 'success');
   } else {
     const task = {
       id: state.nextId++,
@@ -1262,7 +1767,7 @@ function saveTask() {
       createdAt: Date.now()
     };
     state.columns[column].tasks.unshift(task);
-    showToast('Tarefa criada', 'success');
+    showToast(t('toast.taskCreated'), 'success');
   }
 
   save();
@@ -1283,7 +1788,7 @@ function deleteTask(taskId) {
   }
   save();
   render();
-  showToast('Tarefa excluída (Ctrl+Z para desfazer)', 'success');
+  showToast(`${t('toast.taskDeleted')} ${t('toast.undoHint')}`, 'success');
 }
 
 // ─── Bulk Selection ──────────────────────────────────
@@ -1293,10 +1798,10 @@ function toggleSelectionMode() {
   const btn = document.getElementById('btn-select-mode');
   if (selectionMode) {
     btn.classList.add('active');
-    btn.innerHTML = '<i class="ri-close-line"></i> Cancelar';
+    btn.innerHTML = `<i class="ri-close-line"></i> ${t('header.cancel')}`;
   } else {
     btn.classList.remove('active');
-    btn.innerHTML = '<i class="ri-checkbox-multiple-line"></i> Selecionar';
+    btn.innerHTML = `<i class="ri-checkbox-multiple-line"></i> ${t('header.select')}`;
   }
   updateBulkBar();
   renderBoard();
@@ -1306,14 +1811,14 @@ function updateBulkBar() {
   const bar = document.getElementById('bulk-action-bar');
   if (selectedTasks.size > 0) {
     bar.classList.add('visible');
-    document.getElementById('bulk-count').textContent = `${selectedTasks.size} selecionada(s)`;
+    document.getElementById('bulk-count').textContent = `${selectedTasks.size} ${t('bulk.selected')}`;
   } else {
     bar.classList.remove('visible');
   }
 }
 
 function bulkMoveTo(targetColumn) {
-  const names = { pending: 'Pendente', wip: 'Em Progresso', done: 'Concluído' };
+  const names = { pending: t('status.pending'), wip: t('status.wip'), done: t('status.done') };
   let moved = 0;
   const moves = [];
   selectedTasks.forEach(id => {
@@ -1339,11 +1844,11 @@ function bulkMoveTo(targetColumn) {
   updateBulkBar();
   save();
   render();
-  showToast(`${moved} tarefa(s) movida(s) para ${names[targetColumn]} (Ctrl+Z para desfazer)`, 'success');
+  showToast(`${moved} ${t('toast.tasksMoved')} ${names[targetColumn]} ${t('toast.undoHint')}`, 'success');
 }
 
 function bulkDelete() {
-  showConfirm(`Excluir ${selectedTasks.size} tarefa(s)?`, 'Esta ação não pode ser desfeita.', () => {
+  showConfirm(`${t('bulk.delete')} ${selectedTasks.size} ${t('misc.tasks')}?`, t('confirm.cannotUndo'), () => {
     const deletedTasks = [];
     selectedTasks.forEach(id => {
       for (const col of Object.keys(state.columns)) {
@@ -1362,7 +1867,7 @@ function bulkDelete() {
     updateBulkBar();
     save();
     render();
-    showToast(`${count} tarefa(s) excluída(s) (Ctrl+Z para desfazer)`, 'success');
+    showToast(`${count} ${t('toast.tasksDeleted')} ${t('toast.undoHint')}`, 'success');
   });
 }
 
@@ -1383,6 +1888,11 @@ function animateValue(elementId, target) {
   const el = document.querySelector(`#${elementId} .stat-value`);
   const current = parseInt(el.textContent) || 0;
   if (current === target) return;
+
+  // Pop animation on change
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
 
   const duration = 400;
   const start = performance.now();
@@ -1451,7 +1961,7 @@ function renderWeeklyChart() {
   const container = document.getElementById('weekly-chart');
   container.innerHTML = '';
 
-  const days = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  const days = [t('days.mon'), t('days.tue'), t('days.wed'), t('days.thu'), t('days.fri'), t('days.sat'), t('days.sun')];
   const history = state.history || [];
 
   const counts = new Array(7).fill(0);
@@ -1473,7 +1983,7 @@ function renderWeeklyChart() {
     const bar = document.createElement('div');
     bar.className = 'chart-bar';
     bar.style.height = `${(counts[i] / max) * 100}%`;
-    bar.title = `${counts[i]} tarefa(s)`;
+    bar.title = `${counts[i]} ${t('misc.tasks')}`;
 
     const label = document.createElement('span');
     label.className = 'chart-bar-label';
@@ -1500,9 +2010,9 @@ function renderDonutChart() {
 
   let offset = 0;
   const segments = [
-    { value: pending, color: 'var(--pending-color)', arc: pendingArc, label: 'Pendente' },
-    { value: wip, color: 'var(--wip-color)', arc: wipArc, label: 'Em Progresso' },
-    { value: done, color: 'var(--done-color)', arc: doneArc, label: 'Concluído' },
+    { value: pending, color: 'var(--pending-color)', arc: pendingArc, label: t('status.pending') },
+    { value: wip, color: 'var(--wip-color)', arc: wipArc, label: t('status.wip') },
+    { value: done, color: 'var(--done-color)', arc: doneArc, label: t('status.done') },
   ];
 
   let circles = '';
@@ -1571,7 +2081,7 @@ function renderStreak() {
     else if (count >= 2) cell.classList.add('level-2');
     else if (count >= 1) cell.classList.add('level-1');
 
-    cell.title = `${key}: ${count} tarefa(s)`;
+    cell.title = `${key}: ${count} ${t('misc.tasks')}`;
     heatmap.appendChild(cell);
   }
 }
@@ -1623,11 +2133,11 @@ function renderTimeline() {
   const withoutDate = allTasks.filter(t => !t.dueDate);
 
   if (withDate.length === 0 && withoutDate.length === 0) {
-    container.innerHTML = '<div class="timeline-empty"><i class="ri-calendar-line" style="font-size:32px;margin-bottom:8px;display:block;opacity:0.4;"></i>Nenhuma tarefa ainda. Crie tarefas para vê-las aqui.</div>';
+    container.innerHTML = `<div class="timeline-empty"><i class="ri-calendar-line" style="font-size:32px;margin-bottom:8px;display:block;opacity:0.4;"></i>${t('timeline.empty')}</div>`;
     return;
   }
 
-  const statusLabel = { pending: 'Pendente', wip: 'Em Progresso', done: 'Concluído' };
+  const statusLabel = { pending: t('status.pending'), wip: t('status.wip'), done: t('status.done') };
 
   withDate.forEach((task, i) => {
     const item = document.createElement('div');
@@ -1646,7 +2156,7 @@ function renderTimeline() {
     const separator = document.createElement('div');
     separator.className = 'timeline-date';
     separator.style.cssText = 'padding: 16px 0 8px; color: var(--text-muted); font-size: 12px; font-weight: 600;';
-    separator.textContent = 'Sem Prazo Definido';
+    separator.textContent = t('timeline.noDate');
     container.appendChild(separator);
 
     withoutDate.forEach((task, i) => {
@@ -1677,6 +2187,7 @@ function renderThemeGrid() {
   Object.entries(themes).forEach(([key, theme]) => {
     const card = document.createElement('div');
     card.className = `theme-card${state.theme === key ? ' active' : ''}`;
+    const themeName = t(`theme.${key}`);
     
     const [bg, c1, c2] = theme.preview;
     card.innerHTML = `
@@ -1690,7 +2201,7 @@ function renderThemeGrid() {
       </div>
       <div class="theme-info">
         <i class="${theme.icon}"></i>
-        <span>${theme.name}</span>
+        <span>${themeName}</span>
       </div>
       ${state.theme === key ? '<div class="theme-active-badge"><i class="ri-check-line"></i></div>' : ''}
     `;
@@ -1699,7 +2210,7 @@ function renderThemeGrid() {
       applyTheme(key);
       save();
       renderThemeGrid();
-      showToast(`Tema "${theme.name}" aplicado`, 'success');
+      showToast(`${themeName} ✓`, 'success');
     });
 
     container.appendChild(card);
@@ -1722,18 +2233,18 @@ function renderTagsManager() {
       <div class="tag-manager-preview">
         <span class="task-tag" style="background:${hexToRgba(tagColor, 0.12)};border-color:${hexToRgba(tagColor, 0.25)};color:${tagColor}">${escapeHtml(tagName)}</span>
       </div>
-      <button class="tag-manager-delete" title="Remover tag" data-idx="${idx}">
+      <button class="tag-manager-delete" title="${t('misc.removeTag')}" data-idx="${idx}">
         <i class="ri-close-line"></i>
       </button>
     `;
 
     item.querySelector('.tag-manager-delete').addEventListener('click', () => {
-      showConfirm('Remover esta tag?', `A tag "${tagName}" será removida. Tarefas existentes manterão a tag.`, () => {
+      showConfirm(t('misc.removeTag'), t('misc.removeTagMsg').replace('{name}', tagName), () => {
         state.tags.splice(idx, 1);
         save();
         renderTagsManager();
         renderTagFilters();
-        showToast('Tag removida', 'success');
+        showToast(t('toast.tagRemoved'), 'success');
       });
     });
 
@@ -1741,7 +2252,7 @@ function renderTagsManager() {
   });
 
   if (state.tags.length === 0) {
-    container.innerHTML = '<div class="tags-empty"><i class="ri-price-tag-3-line"></i><span>Nenhuma tag criada</span></div>';
+    container.innerHTML = `<div class="tags-empty"><i class="ri-price-tag-3-line"></i><span>${t('misc.noTags')}</span></div>`;
   }
 }
 
@@ -1765,13 +2276,13 @@ function addNewTag() {
   const input = document.getElementById('new-tag-name');
   const name = input.value.trim();
   if (!name) {
-    showToast('Digite um nome para a tag', 'error');
+    showToast(t('misc.tagNameRequired'), 'error');
     return;
   }
 
   const exists = state.tags.some(t => (t.name || t).toLowerCase() === name.toLowerCase());
   if (exists) {
-    showToast('Já existe uma tag com este nome', 'error');
+    showToast(t('misc.tagExists'), 'error');
     return;
   }
 
@@ -1780,7 +2291,7 @@ function addNewTag() {
   save();
   renderTagsManager();
   renderTagFilters();
-  showToast(`Tag "${name}" adicionada`, 'success');
+  showToast(`${t('toast.tagAdded')}`, 'success');
 }
 
 // ─── Confirm Modal ───────────────────────────────────
@@ -1834,16 +2345,16 @@ function formatDate(dateStr) {
   const now = new Date();
   const diff = Math.ceil((d - now) / (1000 * 60 * 60 * 24));
 
-  if (diff === 0) return 'Hoje';
-  if (diff === 1) return 'Amanhã';
-  if (diff === -1) return 'Ontem';
+  if (diff === 0) return t('date.today');
+  if (diff === 1) return t('date.tomorrow');
+  if (diff === -1) return t('date.yesterday');
 
-  return d.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' });
+  return d.toLocaleDateString(currentLang === 'en' ? 'en-US' : 'pt-BR', { month: 'short', day: 'numeric' });
 }
 
 function formatDateLong(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('pt-BR', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' });
+  return d.toLocaleDateString(currentLang === 'en' ? 'en-US' : 'pt-BR', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 // ─── Keyboard Navigation ─────────────────────────────
@@ -1917,7 +2428,7 @@ function handleBoardKeyNavigation(e) {
           const taskId = parseInt(card.dataset.taskId);
           const task = findTaskById(taskId);
           if (task) {
-            showConfirm('Excluir esta tarefa?', `"${task.task.title}" será excluída permanentemente.`, () => {
+            showConfirm(t('confirm.deleteTask'), `"${task.task.title}" ${t('confirm.deleteTaskMsg')}`, () => {
               deleteTask(taskId);
             });
           }
@@ -1985,7 +2496,7 @@ function initPomodoro() {
 
   closeBtn.addEventListener('click', () => {
     if (pomodoroState.running) {
-      showConfirm('Fechar Pomodoro?', 'O timer ainda está rodando. Deseja fechar?', () => {
+      showConfirm(t('pomodoro.closeConfirm'), t('pomodoro.closeMsg'), () => {
         stopPomodoro();
         widget.style.display = 'none';
         navBtn.classList.remove('active');
@@ -2036,9 +2547,9 @@ function initPomodoro() {
     const taskName = document.getElementById('pomodoro-task-name');
     if (taskId) {
       const found = findTaskById(taskId);
-      taskName.textContent = found ? found.task.title : 'Nenhuma tarefa';
+      taskName.textContent = found ? found.task.title : t('pomodoro.noTask');
     } else {
-      taskName.textContent = 'Nenhuma tarefa selecionada';
+      taskName.textContent = t('pomodoro.noTask');
     }
   });
 
@@ -2048,12 +2559,12 @@ function initPomodoro() {
 function populateTaskPicker() {
   const select = document.getElementById('pomodoro-task-select');
   const currentVal = select.value;
-  select.innerHTML = '<option value="">Nenhuma</option>';
+  select.innerHTML = `<option value="">${t('pomodoro.none')}</option>`;
   ['pending', 'wip'].forEach(col => {
     state.columns[col].tasks.forEach(task => {
       const opt = document.createElement('option');
       opt.value = task.id;
-      opt.textContent = `${task.title} (${col === 'pending' ? 'Pendente' : 'Em Progresso'})`;
+      opt.textContent = `${task.title} (${col === 'pending' ? t('status.pending') : t('status.wip')})`;
       if (task.id === pomodoroState.linkedTaskId) opt.selected = true;
       select.appendChild(opt);
     });
@@ -2063,7 +2574,7 @@ function populateTaskPicker() {
 function startPomodoro() {
   pomodoroState.running = true;
   const startBtn = document.getElementById('pomodoro-start');
-  startBtn.innerHTML = '<i class="ri-pause-fill"></i> Pausar';
+  startBtn.innerHTML = `<i class="ri-pause-fill"></i> ${t('pomodoro.pause')}`;
   startBtn.classList.add('running');
 
   pomodoroState.interval = setInterval(() => {
@@ -2083,7 +2594,7 @@ function pausePomodoro() {
   pomodoroState.running = false;
   clearInterval(pomodoroState.interval);
   const startBtn = document.getElementById('pomodoro-start');
-  startBtn.innerHTML = '<i class="ri-play-fill"></i> Continuar';
+  startBtn.innerHTML = `<i class="ri-play-fill"></i> ${t('pomodoro.continue')}`;
   startBtn.classList.remove('running');
 }
 
@@ -2091,7 +2602,7 @@ function stopPomodoro() {
   pomodoroState.running = false;
   clearInterval(pomodoroState.interval);
   const startBtn = document.getElementById('pomodoro-start');
-  startBtn.innerHTML = '<i class="ri-play-fill"></i> Iniciar';
+  startBtn.innerHTML = `<i class="ri-play-fill"></i> ${t('pomodoro.start')}`;
   startBtn.classList.remove('running');
   document.getElementById('pomodoro-nav-time').textContent = '';
 }
@@ -2139,7 +2650,7 @@ function completePomodoro() {
   if (pomodoroState.mode === 'work') {
     pomodoroState.sessions++;
     playPomodoroChime(true);
-    showToast('🍅 Sessão de foco concluída! Hora de uma pausa.', 'success');
+    showToast(`✅ ${t('toast.pomodoroFocusDone')}`, 'success');
 
     // Save focus time to linked task
     if (pomodoroState.linkedTaskId) {
@@ -2159,7 +2670,7 @@ function completePomodoro() {
     }
   } else {
     playPomodoroChime(false);
-    showToast('⏰ Pausa terminada! Pronto para focar de novo?', 'info');
+    showToast(`⏰ ${t('toast.pomodoroBreakDone')}`, 'info');
     switchPomodoroMode('work');
   }
 

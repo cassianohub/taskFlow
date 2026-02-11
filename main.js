@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Notification, Tray, Menu, nativeImage } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
@@ -33,6 +33,49 @@ function saveTasks(data) {
 }
 
 let mainWindow;
+let tray = null;
+let isQuitting = false;
+let isColdStart = true; // true only on first launch
+
+// ─── Single Instance Lock ────────────────────────────
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  // Another instance is already running — quit this one
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    // Someone tried to open a second instance — focus our window
+    if (mainWindow) {
+      mainWindow.show();
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  app.whenReady().then(() => {
+    createTray();
+    createWindow();
+    setupAutoUpdater();
+    startNotificationScheduler();
+  });
+
+  app.on('before-quit', () => {
+    isQuitting = true;
+  });
+
+  app.on('window-all-closed', () => {
+    // Don't quit — tray keeps running
+  });
+
+  app.on('activate', () => {
+    if (mainWindow) {
+      mainWindow.show();
+    } else {
+      createWindow();
+    }
+  });
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -43,6 +86,7 @@ function createWindow() {
     frame: false,
     transparent: true,
     backgroundColor: '#00000000',
+    show: false, // hidden until ready-to-show
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -53,24 +97,61 @@ function createWindow() {
 
   mainWindow.loadFile('index.html');
 
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+    // Tell renderer whether this is a cold start (for splash animation)
+    mainWindow.webContents.send('cold-start', isColdStart);
+    isColdStart = false;
+  });
+
+  // Intercept close: hide to tray instead of quitting
+  mainWindow.on('close', (e) => {
+    if (!isQuitting) {
+      e.preventDefault();
+      mainWindow.hide();
+    }
+  });
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
 }
 
-app.whenReady().then(() => {
-  createWindow();
-  setupAutoUpdater();
-  startNotificationScheduler();
-});
+function createTray() {
+  const iconPath = path.join(__dirname, 'assets', 'icon.png');
+  const icon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
+  tray = new Tray(icon);
+  tray.setToolTip('TaskFlow');
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Abrir TaskFlow',
+      click: () => {
+        if (mainWindow) {
+          mainWindow.show();
+          mainWindow.focus();
+        }
+      }
+    },
+    { type: 'separator' },
+    {
+      label: 'Sair',
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      }
+    }
+  ]);
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
-});
+  tray.setContextMenu(contextMenu);
+
+  tray.on('double-click', () => {
+    if (mainWindow) {
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
+}
 
 // ─── Auto Updater ────────────────────────────────────
 function setupAutoUpdater() {
@@ -131,12 +212,20 @@ ipcMain.handle('install-update', () => {
 ipcMain.handle('load-tasks', () => loadTasks());
 ipcMain.handle('save-tasks', (_, data) => { saveTasks(data); return true; });
 
-ipcMain.handle('window-minimize', () => mainWindow?.minimize());
+ipcMain.handle('window-minimize', () => {
+  // Hide to tray instead of minimizing to taskbar
+  if (mainWindow) mainWindow.hide();
+});
 ipcMain.handle('window-maximize', () => {
   if (mainWindow?.isMaximized()) mainWindow.unmaximize();
   else mainWindow?.maximize();
 });
 ipcMain.handle('window-close', () => mainWindow?.close());
+
+ipcMain.handle('window-quit', () => {
+  isQuitting = true;
+  app.quit();
+});
 
 ipcMain.handle('get-version', () => app.getVersion());
 

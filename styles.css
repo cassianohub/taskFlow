@@ -2634,6 +2634,47 @@ body {
 }
 
 /* ============================================
+   LANGUAGE SELECTOR
+   ============================================ */
+.language-selector {
+  display: flex;
+  gap: 12px;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.lang-btn:hover {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+  background: rgba(108, 140, 255, 0.05);
+}
+
+.lang-btn.active {
+  border-color: var(--accent-blue);
+  background: rgba(108, 140, 255, 0.1);
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.lang-flag {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* ============================================
    DATA EXPORT/IMPORT
    ============================================ */
 .data-actions {
@@ -3366,4 +3407,202 @@ body {
 @keyframes indicatorPulse {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
+}
+
+/* ─── Splash Screen ──────────────────────────────────── */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.splash-screen.fade-out {
+  opacity: 0;
+  transform: scale(1.05);
+  pointer-events: none;
+}
+
+.splash-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: splashEntry 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes splashEntry {
+  from { opacity: 0; transform: translateY(20px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.splash-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: white;
+  box-shadow: 0 8px 40px rgba(108, 140, 255, 0.3);
+  animation: splashIconPulse 2s ease-in-out infinite;
+}
+
+@keyframes splashIconPulse {
+  0%, 100% { box-shadow: 0 8px 40px rgba(108, 140, 255, 0.3); }
+  50% { box-shadow: 0 8px 60px rgba(108, 140, 255, 0.5); }
+}
+
+.splash-title {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+
+.splash-loader {
+  width: 120px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--glass-bg);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.splash-loader-bar {
+  width: 0%;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+  animation: splashLoad 1.2s ease-in-out forwards;
+}
+
+@keyframes splashLoad {
+  0% { width: 0%; }
+  60% { width: 80%; }
+  100% { width: 100%; }
+}
+
+/* ─── UX Micro-interactions ──────────────────────────── */
+
+/* Card entrance stagger */
+.task-card {
+  animation: cardSlideIn 0.3s ease-out both;
+}
+@keyframes cardSlideIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Stat card hover */
+.stat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Stat value count-up pop */
+.stat-value.pop {
+  animation: statPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes statPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* Column count badge bounce */
+.column-count.bounce {
+  animation: countBounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes countBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Button press feedback */
+.btn-primary:active,
+.btn-secondary:active,
+.btn-add-task:active,
+.column-add:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* Nav item ink spread */
+.nav-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--accent-blue);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: -1;
+}
+.nav-item:active::after {
+  opacity: 0.1;
+  transform: scale(1);
+}
+
+/* Task card complete celebration */
+.task-card.celebrate {
+  animation: celebrate 0.5s ease;
+}
+@keyframes celebrate {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.03); box-shadow: 0 0 20px rgba(52, 211, 153, 0.3); }
+  50% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+/* Smooth column drag-over glow */
+.column.drag-over {
+  transition: box-shadow 0.2s ease;
+  box-shadow: inset 0 0 20px rgba(108, 140, 255, 0.08);
+}
+
+/* Toast slide-in from right */
+.toast {
+  animation: toastSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(40px) scale(0.95); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* Theme card hover lift */
+.theme-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.theme-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Sidebar toggle rotation */
+.sidebar-toggle:active i {
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+}
+
+/* Add button pulse on hover */
+.btn-add-task {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-add-task:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(108, 140, 255, 0.3);
 }

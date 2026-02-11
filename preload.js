@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('api', {
   minimize: () => ipcRenderer.invoke('window-minimize'),
   maximize: () => ipcRenderer.invoke('window-maximize'),
   close: () => ipcRenderer.invoke('window-close'),
+  quit: () => ipcRenderer.invoke('window-quit'),
   getVersion: () => ipcRenderer.invoke('get-version'),
   exportData: () => ipcRenderer.invoke('export-data'),
   importData: () => ipcRenderer.invoke('import-data'),
@@ -25,5 +26,8 @@ contextBridge.exposeInMainWorld('api', {
   onUpdateNotAvailable: (cb) => ipcRenderer.on('update-not-available', () => cb()),
   onUpdateProgress: (cb) => ipcRenderer.on('update-download-progress', (_, p) => cb(p)),
   onUpdateDownloaded: (cb) => ipcRenderer.on('update-downloaded', () => cb()),
-  onUpdateError: (cb) => ipcRenderer.on('update-error', (_, msg) => cb(msg))
+  onUpdateError: (cb) => ipcRenderer.on('update-error', (_, msg) => cb(msg)),
+
+  // Cold start detection
+  onColdStart: (cb) => ipcRenderer.on('cold-start', (_, val) => cb(val)),
 });
