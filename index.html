@@ -85,6 +85,7 @@
         <a href="#" class="nav-item active" data-view="board">
           <i class="ri-layout-column-line"></i>
           <span>Quadro</span>
+          <span class="notification-badge" id="notification-badge" style="display:none">0</span>
         </a>
         <a href="#" class="nav-item" data-view="analytics">
           <i class="ri-bar-chart-grouped-line"></i>
@@ -331,6 +332,43 @@
             </div>
           </div>
 
+          <!-- Notifications Section -->
+          <div class="settings-section">
+            <div class="settings-section-header">
+              <i class="ri-notification-3-line"></i>
+              <div>
+                <h3>Notificações</h3>
+                <p>Configure alertas para prazos das suas tarefas</p>
+              </div>
+            </div>
+            <div class="notification-settings">
+              <label class="toggle-setting">
+                <span class="toggle-label">
+                  <i class="ri-alarm-warning-line"></i>
+                  Notificar tarefas atrasadas
+                </span>
+                <input type="checkbox" id="notify-overdue" checked>
+                <span class="toggle-slider"></span>
+              </label>
+              <label class="toggle-setting">
+                <span class="toggle-label">
+                  <i class="ri-calendar-check-line"></i>
+                  Notificar tarefas que vencem hoje
+                </span>
+                <input type="checkbox" id="notify-today" checked>
+                <span class="toggle-slider"></span>
+              </label>
+              <label class="toggle-setting">
+                <span class="toggle-label">
+                  <i class="ri-calendar-event-line"></i>
+                  Notificar tarefas que vencem amanhã
+                </span>
+                <input type="checkbox" id="notify-tomorrow" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
           <!-- About Section -->
           <div class="settings-section">
             <div class="settings-section-header">
@@ -420,6 +458,17 @@
               <option value="pending">Pendente</option>
               <option value="wip">Em Progresso</option>
               <option value="done">Concluído</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-recurrence-input"><i class="ri-repeat-line"></i> Repetição</label>
+            <select id="task-recurrence-input">
+              <option value="none">Nenhuma</option>
+              <option value="daily">Diária</option>
+              <option value="weekly">Semanal</option>
+              <option value="monthly">Mensal</option>
             </select>
           </div>
         </div>

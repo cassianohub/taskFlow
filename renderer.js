@@ -197,6 +197,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Setup auto-updater UI
   setupUpdateListeners();
+
+  // Setup notification listener
+  setupNotificationListener();
 });
 
 // ─── Auto-Updater UI ────────────────────────────────
@@ -291,6 +294,41 @@ function setupUpdateListeners() {
   // Dismiss
   dismissBtn.addEventListener('click', () => {
     hideBanner();
+  });
+}
+
+// ─── Recurring Tasks ─────────────────────────────────
+async function processRecurringTask(task) {
+  try {
+    const result = await window.api.processRecurringTask(task);
+    if (result.success) {
+      // Reload state from disk to get the new task
+      const saved = await window.api.loadTasks();
+      if (saved && saved.columns) {
+        state.columns = saved.columns;
+        state.nextId = saved.nextId;
+      }
+      const recLabels = { daily: 'diária', weekly: 'semanal', monthly: 'mensal' };
+      showToast(`Tarefa recorrente (${recLabels[task.recurrence]}) recriada em Pendente`, 'info');
+      render();
+    }
+  } catch (e) {
+    console.error('Error processing recurring task:', e);
+  }
+}
+
+// ─── Notification Badge ──────────────────────────────
+function setupNotificationListener() {
+  window.api.onNotificationCount((count) => {
+    const badge = document.getElementById('notification-badge');
+    if (badge) {
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
   });
 }
 
@@ -662,6 +700,17 @@ function createTaskCard(task, column) {
     `;
   }
 
+  let recurrenceHtml = '';
+  if (task.recurrence) {
+    const recLabels = { daily: 'Diária', weekly: 'Semanal', monthly: 'Mensal' };
+    recurrenceHtml = `
+      <div class="task-card-recurrence">
+        <i class="ri-repeat-line"></i>
+        ${recLabels[task.recurrence] || task.recurrence}
+      </div>
+    `;
+  }
+
   let descHtml = '';
   if (task.description) {
     descHtml = `<p class="task-card-desc">${escapeHtml(task.description)}</p>`;
@@ -688,6 +737,7 @@ function createTaskCard(task, column) {
     ${subtaskHtml}
     <div class="task-card-footer">
       ${dueHtml}
+      ${recurrenceHtml}
       <span class="task-card-id">#${task.id}</span>
     </div>
   `;
@@ -787,6 +837,11 @@ function handleDrop(e, targetColumn) {
     const today = new Date().toISOString().split('T')[0];
     if (!state.history) state.history = [];
     state.history.push(today);
+
+    // Handle recurring tasks
+    if (draggedTask.recurrence) {
+      processRecurringTask(draggedTask);
+    }
   }
 
   save();
@@ -821,6 +876,7 @@ function openTaskModal(column = 'pending', task = null) {
     document.getElementById('task-priority-input').value = task.priority || 'medium';
     document.getElementById('task-due-input').value = task.dueDate || '';
     document.getElementById('task-column-input').value = column;
+    document.getElementById('task-recurrence-input').value = task.recurrence || 'none';
     document.getElementById('task-id-input').value = task.id;
   } else {
     title.textContent = 'Nova Tarefa';
@@ -931,6 +987,7 @@ function saveTask() {
   const priority = document.getElementById('task-priority-input').value;
   const dueDate = document.getElementById('task-due-input').value;
   const description = document.getElementById('task-desc-input').value.trim();
+  const recurrence = document.getElementById('task-recurrence-input').value;
 
   const tags = [];
   document.querySelectorAll('#tag-selector .tag-option.selected').forEach(el => {
@@ -957,6 +1014,7 @@ function saveTask() {
         task.dueDate = dueDate;
         task.tags = tags;
         task.subtasks = subtasks;
+        task.recurrence = recurrence !== 'none' ? recurrence : undefined;
 
         if (col !== column) {
           state.columns[col].tasks.splice(idx, 1);
@@ -965,6 +1023,10 @@ function saveTask() {
             const today = new Date().toISOString().split('T')[0];
             if (!state.history) state.history = [];
             state.history.push(today);
+            // Handle recurring tasks
+            if (task.recurrence) {
+              processRecurringTask(task);
+            }
           }
         }
 
@@ -982,6 +1044,7 @@ function saveTask() {
       dueDate,
       tags,
       subtasks,
+      recurrence: recurrence !== 'none' ? recurrence : undefined,
       createdAt: Date.now()
     };
     state.columns[column].tasks.unshift(task);

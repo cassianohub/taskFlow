@@ -1,6 +1,6 @@
 {
   "name": "taskflow",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A beautiful glassmorphism task management dashboard",
   "main": "main.js",
   "scripts": {
@@ -74,7 +74,8 @@
     "publish": {
       "provider": "github",
       "owner": "cassianohub",
-      "repo": "taskFlow"
+      "repo": "taskFlow",
+      "releaseType": "release"
     }
   },
   "devDependencies": {

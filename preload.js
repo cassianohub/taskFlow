@@ -10,6 +10,13 @@ contextBridge.exposeInMainWorld('api', {
   exportData: () => ipcRenderer.invoke('export-data'),
   importData: () => ipcRenderer.invoke('import-data'),
 
+  // Notifications
+  checkNotifications: () => ipcRenderer.invoke('check-notifications'),
+  onNotificationCount: (cb) => ipcRenderer.on('notification-count', (_, count) => cb(count)),
+
+  // Recurring tasks
+  processRecurringTask: (taskData) => ipcRenderer.invoke('process-recurring-task', taskData),
+
   // Auto-update
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   downloadUpdate: () => ipcRenderer.invoke('download-update'),

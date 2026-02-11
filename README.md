@@ -14,6 +14,11 @@ Um app desktop moderno com design glassmorphism, quadro Kanban com drag & drop, 
 
 <img src="assets/icon.png" width="128" alt="TaskFlow Icon">
 
+<!-- Adicione uma screenshot aqui! Use ShareX (getsharex.com) para capturar -->
+<!-- Substitua o caminho abaixo pela sua screenshot real -->
+<br><br>
+<img src="assets/screenshot.png" width="800" alt="TaskFlow Screenshot" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+
 </div>
 
 ## 🇧🇷 Português
@@ -38,7 +43,9 @@ Um app desktop moderno com design glassmorphism, quadro Kanban com drag & drop, 
 | 🎨 | **6 Temas** | Midnight, Ocean, Aurora, Sunset, Rosé e Snow (modo claro) |
 | 🏷️ | **Tags Personalizadas** | Crie suas próprias tags com seletor de cores |
 | 💾 | **Exportar/Importar** | Faça backup e restaure seus dados em JSON |
-| 📡 | **Atualização Automática** | Receba updates automaticamente sem reinstalar |
+| � | **Notificações** | Alertas nativos para tarefas atrasadas, vencendo hoje ou amanhã |
+| 🔁 | **Tarefas Recorrentes** | Diária, semanal ou mensal — recriadas automaticamente ao concluir |
+| �📡 | **Atualização Automática** | Receba updates automaticamente sem reinstalar |
 | 🌐 | **100% Offline** | Fontes e ícones inclusos, funciona sem internet |
 
 ### Instalação
@@ -86,7 +93,9 @@ Nenhum dado é enviado para a internet. Tudo fica no seu PC.
 | 🎨 | **6 Themes** | Midnight, Ocean, Aurora, Sunset, Rosé, and Snow (light mode) |
 | 🏷️ | **Custom Tags** | Create your own tags with a color picker |
 | 💾 | **Export/Import** | Back up and restore your data as JSON |
-| 📡 | **Auto-Update** | Receive updates automatically without reinstalling |
+| � | **Notifications** | Native alerts for overdue, due today, or due tomorrow tasks |
+| 🔁 | **Recurring Tasks** | Daily, weekly, or monthly — auto-recreated when completed |
+| �📡 | **Auto-Update** | Receive updates automatically without reinstalling |
 | 🌐 | **100% Offline** | All fonts and icons bundled locally, works without internet |
 
 ### Installation
