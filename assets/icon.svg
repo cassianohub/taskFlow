@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a1a"/>
+      <stop offset="100%" style="stop-color:#12122a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6c8cff"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6c8cff;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:0.3"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background rounded square -->
+  <rect x="16" y="16" width="480" height="480" rx="96" ry="96" fill="url(#bg)"/>
+  
+  <!-- Subtle glow orb -->
+  <circle cx="380" cy="140" r="120" fill="url(#glow)" opacity="0.5"/>
+  <circle cx="140" cy="380" r="100" fill="url(#glow)" opacity="0.4"/>
+  
+  <!-- Glass card effect - main board -->
+  <rect x="80" y="120" width="352" height="280" rx="24" ry="24" 
+        fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  
+  <!-- Column dividers -->
+  <line x1="197" y1="160" x2="197" y2="360" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+  <line x1="315" y1="160" x2="315" y2="360" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+  
+  <!-- Column dots -->
+  <circle cx="128" cy="148" r="6" fill="#6c8cff"/>
+  <circle cx="256" cy="148" r="6" fill="#fb923c"/>
+  <circle cx="384" cy="148" r="6" fill="#34d399"/>
+  
+  <!-- Task cards - Column 1 (Pending) -->
+  <rect x="98" y="170" width="82" height="44" rx="8" ry="8" 
+        fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <rect x="102" y="170" width="30" height="2.5" rx="1" fill="#6c8cff"/>
+  <rect x="106" y="182" width="50" height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+  <rect x="106" y="192" width="35" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+  <rect x="106" y="200" width="20" height="8" rx="4" fill="rgba(108,140,255,0.15)" stroke="rgba(108,140,255,0.25)" stroke-width="0.5"/>
+  
+  <rect x="98" y="222" width="82" height="44" rx="8" ry="8" 
+        fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <rect x="102" y="222" width="30" height="2.5" rx="1" fill="#f87171"/>
+  <rect x="106" y="234" width="55" height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+  <rect x="106" y="244" width="40" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+  
+  <!-- Task cards - Column 2 (WIP) -->
+  <rect x="215" y="170" width="82" height="44" rx="8" ry="8" 
+        fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <rect x="219" y="170" width="30" height="2.5" rx="1" fill="#fb923c"/>
+  <rect x="223" y="182" width="48" height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+  <rect x="223" y="192" width="60" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+  
+  <!-- Task cards - Column 3 (Done) -->
+  <rect x="333" y="170" width="82" height="44" rx="8" ry="8" 
+        fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <rect x="337" y="170" width="30" height="2.5" rx="1" fill="#34d399"/>
+  <rect x="341" y="182" width="52" height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+  <rect x="341" y="192" width="38" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+  
+  <rect x="333" y="222" width="82" height="44" rx="8" ry="8" 
+        fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <rect x="337" y="222" width="30" height="2.5" rx="1" fill="#34d399"/>
+  <rect x="341" y="234" width="44" height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+  
+  <rect x="333" y="274" width="82" height="36" rx="8" ry="8" 
+        fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <rect x="337" y="274" width="30" height="2.5" rx="1" fill="#34d399"/>
+  <rect x="341" y="286" width="56" height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+  
+  <!-- Floating "T" with gradient -->
+  <text x="256" y="440" text-anchor="middle" font-family="Inter, Arial, sans-serif" 
+        font-size="72" font-weight="700" fill="url(#accent)">TF</text>
+</svg>

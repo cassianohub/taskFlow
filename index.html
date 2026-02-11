@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow</title>
+  <link rel="stylesheet" href="assets/fonts/inter.css">
+  <link rel="stylesheet" href="assets/fonts/remixicon.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="bg-animation">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+  </div>
+
+  <!-- Custom Title Bar -->
+  <div class="titlebar" id="titlebar">
+    <div class="titlebar-drag">
+      <div class="titlebar-logo">
+        <i class="ri-dashboard-3-line"></i>
+        <span>TaskFlow</span>
+      </div>
+    </div>
+    <div class="titlebar-controls">
+      <button class="titlebar-btn minimize" onclick="window.api.minimize()">
+        <i class="ri-subtract-line"></i>
+      </button>
+      <button class="titlebar-btn maximize" onclick="window.api.maximize()">
+        <i class="ri-checkbox-blank-line"></i>
+      </button>
+      <button class="titlebar-btn close" onclick="window.api.close()">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Update Banner -->
+  <div class="update-banner" id="update-banner">
+    <div class="update-banner-content">
+      <div class="update-banner-icon">
+        <i class="ri-download-cloud-2-line" id="update-icon"></i>
+      </div>
+      <div class="update-banner-text">
+        <span class="update-banner-title" id="update-title">Nova versão disponível!</span>
+        <span class="update-banner-desc" id="update-desc">Uma atualização está pronta para download.</span>
+      </div>
+      <div class="update-banner-progress" id="update-progress-container" style="display:none">
+        <div class="update-progress-bar">
+          <div class="update-progress-fill" id="update-progress-fill"></div>
+        </div>
+        <span class="update-progress-text" id="update-progress-text">0%</span>
+      </div>
+    </div>
+    <div class="update-banner-actions">
+      <button class="update-btn secondary" id="update-dismiss" title="Lembrar depois">
+        Depois
+      </button>
+      <button class="update-btn primary" id="update-action">
+        <i class="ri-download-2-line" id="update-action-icon"></i>
+        <span id="update-action-text">Baixar</span>
+      </button>
+    </div>
+  </div>
+
+  <main class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="user-profile">
+          <div class="avatar">
+            <i class="ri-user-3-line"></i>
+          </div>
+          <div class="user-info">
+            <h3>Meu Espaço</h3>
+            <span class="user-status">Dia produtivo!</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-view="board">
+          <i class="ri-layout-column-line"></i>
+          <span>Quadro</span>
+        </a>
+        <a href="#" class="nav-item" data-view="analytics">
+          <i class="ri-bar-chart-grouped-line"></i>
+          <span>Análises</span>
+        </a>
+        <a href="#" class="nav-item" data-view="calendar">
+          <i class="ri-calendar-2-line"></i>
+          <span>Linha do Tempo</span>
+        </a>
+        <a href="#" class="nav-item" data-view="settings">
+          <i class="ri-settings-3-line"></i>
+          <span>Configurações</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-section">
+        <h4 class="section-title">Estatísticas</h4>
+        <div class="stats-grid">
+          <div class="stat-card" id="stat-total">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card" id="stat-pending">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Pendente</div>
+          </div>
+          <div class="stat-card" id="stat-wip">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Em Progresso</div>
+          </div>
+          <div class="stat-card" id="stat-done">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Concluído</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h4 class="section-title">Produtividade</h4>
+        <div class="progress-ring-container">
+          <svg class="progress-ring" width="100" height="100">
+            <circle class="progress-ring-bg" cx="50" cy="50" r="42" />
+            <circle class="progress-ring-fill" id="progress-ring" cx="50" cy="50" r="42" />
+          </svg>
+          <div class="progress-text" id="progress-text">0%</div>
+        </div>
+        <p class="progress-label">Tarefas Concluídas</p>
+      </div>
+
+      <div class="sidebar-section tags-section">
+        <h4 class="section-title">Filtrar por Tag</h4>
+        <div class="tag-filters" id="tag-filters"></div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <header class="content-header">
+        <div class="header-left">
+          <button class="sidebar-toggle" id="sidebar-toggle">
+            <i class="ri-menu-2-line"></i>
+          </button>
+          <div class="search-container">
+            <i class="ri-search-line"></i>
+            <input type="text" id="search-input" placeholder="Buscar tarefas..." autocomplete="off">
+            <kbd>Ctrl+K</kbd>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="filter-group">
+            <select id="priority-filter" class="glass-select">
+              <option value="all">Todas Prioridades</option>
+              <option value="critical">Crítica</option>
+              <option value="high">Alta</option>
+              <option value="medium">Média</option>
+              <option value="low">Baixa</option>
+            </select>
+            <select id="sort-select" class="glass-select">
+              <option value="newest">Mais Recentes</option>
+              <option value="oldest">Mais Antigos</option>
+              <option value="priority">Por Prioridade</option>
+              <option value="dueDate">Por Prazo</option>
+            </select>
+          </div>
+          <button class="btn-select-mode" id="btn-select-mode" onclick="toggleSelectionMode()">
+            <i class="ri-checkbox-multiple-line"></i> Selecionar
+          </button>
+          <button class="btn-add-task" id="btn-add-task">
+            <i class="ri-add-line"></i>
+            Nova Tarefa
+          </button>
+        </div>
+      </header>
+
+      <!-- Bulk Action Bar -->
+      <div class="bulk-action-bar" id="bulk-action-bar">
+        <span class="bulk-count" id="bulk-count">0 selecionadas</span>
+        <div class="bulk-actions">
+          <button class="bulk-btn" onclick="bulkMoveTo('pending')" title="Mover para Pendente">
+            <span class="column-dot pending" style="width:8px;height:8px"></span> Pendente
+          </button>
+          <button class="bulk-btn" onclick="bulkMoveTo('wip')" title="Mover para Em Progresso">
+            <span class="column-dot wip" style="width:8px;height:8px"></span> Em Progresso
+          </button>
+          <button class="bulk-btn" onclick="bulkMoveTo('done')" title="Mover para Concluído">
+            <span class="column-dot done" style="width:8px;height:8px"></span> Concluído
+          </button>
+          <div class="bulk-divider"></div>
+          <button class="bulk-btn danger" onclick="bulkDelete()" title="Excluir selecionadas">
+            <i class="ri-delete-bin-6-line"></i> Excluir
+          </button>
+        </div>
+      </div>
+
+      <!-- Board View -->
+      <div class="view-container active" id="board-view">
+        <div class="board" id="board">
+          <!-- Pending Column -->
+          <div class="column" data-column="pending">
+            <div class="column-header">
+              <div class="column-title">
+                <span class="column-dot pending"></span>
+                <h2>Pendente</h2>
+                <span class="column-count" id="count-pending">0</span>
+              </div>
+              <button class="column-add" data-column="pending" title="Adicionar tarefa">
+                <i class="ri-add-line"></i>
+              </button>
+            </div>
+            <div class="task-list" id="list-pending" data-column="pending"></div>
+          </div>
+
+          <!-- WIP Column -->
+          <div class="column" data-column="wip">
+            <div class="column-header">
+              <div class="column-title">
+                <span class="column-dot wip"></span>
+                <h2>Em Progresso</h2>
+                <span class="column-count" id="count-wip">0</span>
+              </div>
+              <button class="column-add" data-column="wip" title="Adicionar tarefa">
+                <i class="ri-add-line"></i>
+              </button>
+            </div>
+            <div class="task-list" id="list-wip" data-column="wip"></div>
+          </div>
+
+          <!-- Done Column -->
+          <div class="column" data-column="done">
+            <div class="column-header">
+              <div class="column-title">
+                <span class="column-dot done"></span>
+                <h2>Concluído</h2>
+                <span class="column-count" id="count-done">0</span>
+              </div>
+              <button class="column-clear" id="btn-clear-done" title="Limpar concluídas">
+                <i class="ri-delete-bin-7-line"></i>
+              </button>
+            </div>
+            <div class="task-list" id="list-done" data-column="done"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics View -->
+      <div class="view-container" id="analytics-view">
+        <div class="analytics-grid">
+          <div class="analytics-card wide">
+            <h3><i class="ri-line-chart-line"></i> Atividade Semanal</h3>
+            <div class="chart-container" id="weekly-chart"></div>
+          </div>
+          <div class="analytics-card">
+            <h3><i class="ri-pie-chart-2-line"></i> Distribuição</h3>
+            <div class="donut-chart" id="donut-chart"></div>
+          </div>
+          <div class="analytics-card">
+            <h3><i class="ri-fire-line"></i> Sequência</h3>
+            <div class="streak-display" id="streak-display">
+              <div class="streak-number">0</div>
+              <div class="streak-label">Dias Seguidos</div>
+              <div class="streak-heatmap" id="streak-heatmap"></div>
+            </div>
+          </div>
+          <div class="analytics-card wide">
+            <h3><i class="ri-tag-line"></i> Tarefas por Tag</h3>
+            <div class="tag-chart" id="tag-chart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline View -->
+      <div class="view-container" id="calendar-view">
+        <div class="timeline-container" id="timeline-container">
+          <div class="timeline-header">
+            <h3>Linha do Tempo</h3>
+            <p class="timeline-subtitle">Visão geral das tarefas por prazo</p>
+          </div>
+          <div class="timeline" id="timeline"></div>
+        </div>
+      </div>
+
+      <!-- Settings View -->
+      <div class="view-container" id="settings-view">
+        <div class="settings-container">
+          <div class="settings-header">
+            <h2><i class="ri-settings-3-line"></i> Configurações</h2>
+            <p>Personalize seu TaskFlow</p>
+          </div>
+
+          <!-- Theme Section -->
+          <div class="settings-section">
+            <div class="settings-section-header">
+              <i class="ri-palette-line"></i>
+              <div>
+                <h3>Tema</h3>
+                <p>Escolha a aparência do seu dashboard</p>
+              </div>
+            </div>
+            <div class="theme-grid" id="theme-grid"></div>
+          </div>
+
+          <!-- Tags Section -->
+          <div class="settings-section">
+            <div class="settings-section-header">
+              <i class="ri-price-tag-3-line"></i>
+              <div>
+                <h3>Tags Personalizadas</h3>
+                <p>Gerencie as tags disponíveis para suas tarefas</p>
+              </div>
+            </div>
+            <div class="tags-manager" id="tags-manager"></div>
+            <div class="tag-add-form">
+              <div class="tag-add-row">
+                <div class="tag-add-input-wrap">
+                  <i class="ri-price-tag-3-line"></i>
+                  <input type="text" id="new-tag-name" placeholder="Nome da nova tag..." autocomplete="off">
+                </div>
+                <div class="tag-color-picker" id="tag-color-picker"></div>
+                <button class="btn-add-tag" id="btn-add-tag">
+                  <i class="ri-add-line"></i> Adicionar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- About Section -->
+          <div class="settings-section">
+            <div class="settings-section-header">
+              <i class="ri-database-2-line"></i>
+              <div>
+                <h3>Dados</h3>
+                <p>Exporte ou importe seus dados para backup</p>
+              </div>
+            </div>
+            <div class="data-actions">
+              <button class="btn-data-action" id="btn-export-data">
+                <i class="ri-download-2-line"></i>
+                <div>
+                  <span class="data-action-title">Exportar Dados</span>
+                  <span class="data-action-desc">Salvar backup como arquivo JSON</span>
+                </div>
+              </button>
+              <button class="btn-data-action" id="btn-import-data">
+                <i class="ri-upload-2-line"></i>
+                <div>
+                  <span class="data-action-title">Importar Dados</span>
+                  <span class="data-action-desc">Restaurar de um arquivo JSON</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- About Section -->
+          <div class="settings-section">
+            <div class="settings-section-header">
+              <i class="ri-information-line"></i>
+              <div>
+                <h3>Sobre</h3>
+                <p>TaskFlow <span id="app-version">v1.0.0</span> — Dashboard de organização de tarefas</p>
+              </div>
+            </div>
+            <div class="about-actions">
+              <button class="btn-data-action" id="btn-check-updates">
+                <i class="ri-refresh-line"></i>
+                <div>
+                  <span class="data-action-title">Verificar Atualizações</span>
+                  <span class="data-action-desc" id="update-status-text">Clique para buscar novas versões</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Task Modal -->
+  <div class="modal-overlay" id="task-modal">
+    <div class="modal glass-panel">
+      <div class="modal-header">
+        <h2 id="modal-title">Nova Tarefa</h2>
+        <button class="modal-close" id="modal-close">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+      <form id="task-form" class="modal-body">
+        <div class="form-group">
+          <label for="task-title-input">Título</label>
+          <input type="text" id="task-title-input" placeholder="O que precisa ser feito?" required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="task-desc-input">Descrição</label>
+          <textarea id="task-desc-input" placeholder="Adicione mais detalhes..." rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-priority-input">Prioridade</label>
+            <select id="task-priority-input">
+              <option value="low">Baixa</option>
+              <option value="medium" selected>Média</option>
+              <option value="high">Alta</option>
+              <option value="critical">Crítica</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="task-due-input">Prazo</label>
+            <input type="date" id="task-due-input">
+          </div>
+          <div class="form-group">
+            <label for="task-column-input">Status</label>
+            <select id="task-column-input">
+              <option value="pending">Pendente</option>
+              <option value="wip">Em Progresso</option>
+              <option value="done">Concluído</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tags</label>
+          <div class="tag-selector" id="tag-selector"></div>
+        </div>
+        <div class="form-group subtask-section">
+          <div class="subtask-header">
+            <label><i class="ri-list-check-3"></i> Subtarefas</label>
+            <span class="subtask-counter" id="subtask-counter">0 itens</span>
+          </div>
+          <div class="subtask-list-wrapper">
+            <div class="subtask-list" id="subtask-list"></div>
+          </div>
+          <div class="subtask-add">
+            <div class="subtask-add-inner">
+              <i class="ri-add-circle-line"></i>
+              <input type="text" id="subtask-input" placeholder="Adicionar subtarefa..." autocomplete="off">
+            </div>
+            <button type="button" id="btn-add-subtask" class="btn-subtask-add">
+              Adicionar
+            </button>
+          </div>
+        </div>
+        <input type="hidden" id="task-id-input">
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="btn-delete-task" style="display:none">
+            <i class="ri-delete-bin-line"></i> Excluir
+          </button>
+          <div class="modal-actions-right">
+            <button type="button" class="btn-secondary" id="btn-cancel-task">Cancelar</button>
+            <button type="submit" class="btn-primary">
+              <i class="ri-check-line"></i> <span id="btn-save-text">Criar Tarefa</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="confirm-modal">
+    <div class="modal glass-panel confirm-modal">
+      <div class="confirm-icon">
+        <i class="ri-error-warning-line"></i>
+      </div>
+      <h3 id="confirm-title">Tem certeza?</h3>
+      <p id="confirm-message">Esta ação não pode ser desfeita.</p>
+      <div class="modal-actions centered">
+        <button class="btn-secondary" id="confirm-cancel">Cancelar</button>
+        <button class="btn-danger" id="confirm-ok">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
