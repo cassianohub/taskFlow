@@ -1,6 +1,6 @@
 {
   "name": "taskflow",
-  "version": "1.3.0",
+  "version": "1.3.5",
   "description": "A beautiful glassmorphism task management dashboard",
   "main": "main.js",
   "scripts": {

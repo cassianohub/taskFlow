@@ -703,6 +703,7 @@ function getFilteredTasks(column) {
       case 'oldest': return (a.createdAt || 0) - (b.createdAt || 0);
       case 'priority': return priorityWeight(b.priority) - priorityWeight(a.priority);
       case 'dueDate': return compareDueDates(a, b);
+      case 'manual': return 0;
       default: return 0;
     }
   });
@@ -888,10 +889,15 @@ function createTaskCard(task, column) {
 }
 
 // ─── Drag & Drop ─────────────────────────────────────
+let dragIndicatorThrottle = null;
+
 function handleDragStart(e, task, column) {
   draggedTask = task;
   draggedFrom = column;
-  e.target.classList.add('dragging');
+  // Use setTimeout so the ghost image captures the card before we style it
+  requestAnimationFrame(() => {
+    e.target.classList.add('dragging');
+  });
   e.dataTransfer.effectAllowed = 'move';
   e.dataTransfer.setData('text/plain', task.id);
 }
@@ -899,8 +905,10 @@ function handleDragStart(e, task, column) {
 function handleDragEnd(e) {
   e.target.classList.remove('dragging');
   document.querySelectorAll('.column').forEach(c => c.classList.remove('drag-over'));
+  document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
   draggedTask = null;
   draggedFrom = null;
+  dragIndicatorThrottle = null;
 }
 
 function handleDragOver(e) {
@@ -908,21 +916,101 @@ function handleDragOver(e) {
   e.dataTransfer.dropEffect = 'move';
   const column = e.currentTarget.closest('.column');
   if (column) column.classList.add('drag-over');
+
+  // Throttle indicator updates to avoid DOM thrashing
+  const now = Date.now();
+  if (dragIndicatorThrottle && now - dragIndicatorThrottle < 50) return;
+  dragIndicatorThrottle = now;
+
+  // Show drop position indicator
+  const list = e.currentTarget;
+  const afterElement = getDragAfterElement(list, e.clientY);
+
+  // Only update if position actually changed
+  const existing = list.querySelector('.drop-indicator');
+  if (existing) {
+    const nextSib = existing.nextElementSibling;
+    if (afterElement === nextSib) return; // already in right spot
+    existing.remove();
+  }
+
+  const indicator = document.createElement('div');
+  indicator.className = 'drop-indicator';
+  if (afterElement) {
+    list.insertBefore(indicator, afterElement);
+  } else {
+    list.appendChild(indicator);
+  }
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll('.task-card:not(.dragging)')];
+  let closest = null;
+  let closestOffset = Number.NEGATIVE_INFINITY;
+  draggableElements.forEach(child => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closestOffset) {
+      closestOffset = offset;
+      closest = child;
+    }
+  });
+  return closest;
 }
 
 function handleDragLeave(e) {
-  const column = e.currentTarget.closest('.column');
+  // Only react when actually leaving the list, not its children
+  const list = e.currentTarget;
+  const related = e.relatedTarget;
+  if (related && list.contains(related)) return;
+
+  const column = list.closest('.column');
   if (column) column.classList.remove('drag-over');
+  list.querySelectorAll('.drop-indicator').forEach(el => el.remove());
 }
 
 function handleDrop(e, targetColumn) {
   e.preventDefault();
   const column = e.currentTarget.closest('.column');
   if (column) column.classList.remove('drag-over');
+  document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
 
   if (!draggedTask || !draggedFrom) return;
-  if (draggedFrom === targetColumn) return;
 
+  const list = e.currentTarget;
+  const afterElement = getDragAfterElement(list, e.clientY);
+
+  if (draggedFrom === targetColumn) {
+    // ── Reorder within same column ──
+    const tasks = state.columns[targetColumn].tasks;
+    const oldIdx = tasks.findIndex(t => t.id === draggedTask.id);
+    if (oldIdx === -1) return;
+
+    let newIdx;
+    if (afterElement) {
+      const afterId = parseInt(afterElement.dataset.taskId);
+      newIdx = tasks.findIndex(t => t.id === afterId);
+    } else {
+      newIdx = tasks.length;
+    }
+    if (oldIdx < newIdx) newIdx--;
+    if (oldIdx === newIdx) return;
+
+    const [task] = tasks.splice(oldIdx, 1);
+    tasks.splice(newIdx, 0, task);
+
+    // Switch to manual sort so the new order is preserved
+    if (sortMode !== 'manual') {
+      sortMode = 'manual';
+      document.getElementById('sort-select').value = 'manual';
+    }
+
+    save();
+    render();
+    return;
+  }
+
+  // ── Move between columns ──
   const sourceIdx = state.columns[draggedFrom].tasks.findIndex(t => t.id === draggedTask.id);
   if (sourceIdx > -1) {
     pushUndo('move-task', {
@@ -934,7 +1022,14 @@ function handleDrop(e, targetColumn) {
     state.columns[draggedFrom].tasks.splice(sourceIdx, 1);
   }
 
-  state.columns[targetColumn].tasks.unshift(draggedTask);
+  // Insert at drop position instead of always at top
+  if (afterElement) {
+    const afterId = parseInt(afterElement.dataset.taskId);
+    const insertIdx = state.columns[targetColumn].tasks.findIndex(t => t.id === afterId);
+    state.columns[targetColumn].tasks.splice(insertIdx, 0, draggedTask);
+  } else {
+    state.columns[targetColumn].tasks.push(draggedTask);
+  }
 
   if (targetColumn === 'done') {
     const today = new Date().toISOString().split('T')[0];
@@ -951,7 +1046,7 @@ function handleDrop(e, targetColumn) {
   render();
 
   const statusNames = { pending: 'Pendente', wip: 'Em Progresso', done: 'Concluído' };
-  showToast(`Movido para ${statusNames[targetColumn]}`, 'info');
+  showToast(`Movido para ${statusNames[targetColumn]} (Ctrl+Z para desfazer)`, 'info');
 }
 
 // ─── Task Modal ──────────────────────────────────────
@@ -1991,11 +2086,49 @@ function stopPomodoro() {
   document.getElementById('pomodoro-nav-time').textContent = '';
 }
 
+function playPomodoroChime(isWork) {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Work end: ascending major chord (C5-E5-G5). Break end: two short pings.
+    if (isWork) {
+      const notes = [523.25, 659.25, 783.99];
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime + i * 0.18);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.18 + 0.7);
+        osc.start(audioCtx.currentTime + i * 0.18);
+        osc.stop(audioCtx.currentTime + i * 0.18 + 0.7);
+      });
+    } else {
+      [880, 1046.5].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.12 + 0.4);
+        osc.start(audioCtx.currentTime + i * 0.12);
+        osc.stop(audioCtx.currentTime + i * 0.12 + 0.4);
+      });
+    }
+  } catch (e) {
+    console.warn('Audio not available:', e);
+  }
+}
+
 function completePomodoro() {
   stopPomodoro();
 
   if (pomodoroState.mode === 'work') {
     pomodoroState.sessions++;
+    playPomodoroChime(true);
     showToast('🍅 Sessão de foco concluída! Hora de uma pausa.', 'success');
 
     // Save focus time to linked task
@@ -2015,6 +2148,7 @@ function completePomodoro() {
       switchPomodoroMode('short');
     }
   } else {
+    playPomodoroChime(false);
     showToast('⏰ Pausa terminada! Pronto para focar de novo?', 'info');
     switchPomodoroMode('work');
   }
