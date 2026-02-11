@@ -55,6 +55,18 @@
   --shadow-glow-blue: 0 0 20px rgba(108, 140, 255, 0.3);
   --shadow-glow-purple: 0 0 20px rgba(168, 85, 247, 0.3);
   --shadow-glow-green: 0 0 20px rgba(52, 211, 153, 0.3);
+
+  /* Panel / Overlay / Component Backgrounds */
+  --panel-bg: rgba(20, 20, 45, 0.95);
+  --titlebar-bg: rgba(10, 10, 26, 0.8);
+  --overlay-bg: rgba(0, 0, 0, 0.5);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+  --glass-shine: rgba(255, 255, 255, 0.03);
+  --glass-shine-hover: rgba(255, 255, 255, 0.06);
+  --toggle-knob: rgba(255, 255, 255, 0.5);
+  --toggle-track: rgba(255, 255, 255, 0.1);
+  --select-arrow: rgba(240, 240, 255, 0.35);
 }
 
 /* ============================================
@@ -88,11 +100,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--scrollbar-thumb);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* ============================================
@@ -172,7 +184,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(10, 10, 26, 0.8);
+  background: var(--titlebar-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--glass-border);
@@ -221,7 +233,7 @@ body {
 }
 
 .titlebar-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--glass-bg-hover);
   color: var(--text-primary);
 }
 
@@ -250,7 +262,7 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--glass-bg);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   border-right: 1px solid var(--glass-border);
@@ -421,7 +433,7 @@ body {
 
 .progress-ring-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.05);
+  stroke: var(--glass-border);
   stroke-width: 6;
 }
 
@@ -504,7 +516,7 @@ body {
   justify-content: space-between;
   padding: 12px 24px;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--glass-border);
@@ -592,7 +604,7 @@ body {
   font-size: 10px;
   font-family: inherit;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 4px;
 }
@@ -623,7 +635,7 @@ body {
   appearance: none;
   -webkit-appearance: none;
   padding-right: 28px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(240,240,255,0.35)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
 }
@@ -804,7 +816,7 @@ body {
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
@@ -926,7 +938,7 @@ body {
 .task-card {
   padding: 14px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   cursor: grab;
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -943,7 +955,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 55%, transparent 60%);
+  background: linear-gradient(105deg, transparent 40%, var(--glass-shine) 45%, var(--glass-shine-hover) 50%, var(--glass-shine) 55%, transparent 60%);
   background-size: 300% 100%;
   background-position: 200% 0;
   pointer-events: none;
@@ -966,10 +978,10 @@ body {
 }
 
 .task-card:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
   transform: translateY(-3px) scale(1.01);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(108, 140, 255, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .task-card:active {
@@ -1039,7 +1051,7 @@ body {
   width: 20px;
   height: 20px;
   border-radius: 6px;
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  border: 2px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1129,7 +1141,7 @@ body {
   flex: 1;
   height: 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--glass-border);
   overflow: hidden;
 }
 
@@ -1154,8 +1166,8 @@ body {
   margin-bottom: 8px;
   padding: 6px 8px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
 }
 
 .card-subtask-item {
@@ -1171,7 +1183,7 @@ body {
 }
 
 .card-subtask-item:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--glass-bg);
 }
 
 .card-subtask-item i {
@@ -1253,7 +1265,7 @@ body {
 }
 
 .analytics-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
@@ -1407,7 +1419,7 @@ body {
 .heatmap-cell {
   aspect-ratio: 1;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--glass-bg);
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -1446,7 +1458,7 @@ body {
   flex: 1;
   height: 8px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--glass-bg);
   overflow: hidden;
 }
 
@@ -1507,7 +1519,7 @@ body {
   position: relative;
   margin-bottom: 20px;
   padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   transition: var(--transition-base);
@@ -1520,7 +1532,7 @@ body {
 }
 
 .timeline-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg-hover);
   border-color: var(--glass-border-hover);
   transform: translateX(6px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -1584,7 +1596,7 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--overlay-bg);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: none;
@@ -1608,7 +1620,7 @@ body {
   width: 100%;
   max-width: 560px;
   border-radius: var(--radius-xl);
-  background: rgba(20, 20, 45, 0.95);
+  background: var(--panel-bg);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   border: 1px solid var(--glass-border);
@@ -1791,7 +1803,7 @@ body {
    MODAL SUBTASK SECTION (redesigned)
    ============================================ */
 .subtask-section {
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 16px;
@@ -1846,8 +1858,8 @@ body {
   gap: 10px;
   padding: 8px 10px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   animation: subtaskIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   transition: all 0.25s ease;
 }
@@ -1863,8 +1875,8 @@ body {
 }
 
 .subtask-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
 }
 
 /* Custom checkbox */
@@ -1881,7 +1893,7 @@ body {
   width: 20px;
   height: 20px;
   border-radius: 6px;
-  border: 2px solid rgba(255, 255, 255, 0.12);
+  border: 2px solid var(--glass-border-hover);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2129,7 +2141,7 @@ body {
 .toast {
   padding: 12px 20px;
   border-radius: var(--radius-md);
-  background: rgba(20, 20, 45, 0.95);
+  background: var(--panel-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
@@ -2206,7 +2218,7 @@ body {
    UTILITY CLASSES
    ============================================ */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--glass-bg);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   border: 1px solid var(--glass-border);
@@ -2262,7 +2274,7 @@ body {
 }
 
 .settings-section {
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
@@ -2354,8 +2366,8 @@ body {
   transform: translateX(-50%);
   width: 60%;
   height: 30px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg-hover);
+  border: 1px solid var(--glass-border-hover);
   border-radius: 6px;
   padding: 6px 8px;
   display: flex;
@@ -2419,14 +2431,14 @@ body {
   gap: 12px;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   transition: all 0.2s ease;
 }
 
 .tag-manager-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
 }
 
 .tag-manager-color {
@@ -2637,7 +2649,7 @@ body {
   padding: 16px;
   border-radius: var(--radius-md);
   border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--glass-bg);
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -2786,7 +2798,7 @@ body {
   flex: 1;
   height: 6px;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--glass-border);
   overflow: hidden;
 }
 
@@ -2906,16 +2918,16 @@ body {
   justify-content: space-between;
   padding: 12px 16px;
   border-radius: 12px;
-  background: var(--card-bg, rgba(255, 255, 255, 0.04));
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.06));
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
 }
 
 .toggle-setting:hover {
-  background: var(--hover-bg, rgba(255, 255, 255, 0.06));
-  border-color: var(--border-hover, rgba(255, 255, 255, 0.1));
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
 }
 
 .toggle-label {
@@ -2923,7 +2935,7 @@ body {
   align-items: center;
   gap: 10px;
   font-size: 13px;
-  color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  color: var(--text-primary);
 }
 
 .toggle-label i {
@@ -2939,7 +2951,7 @@ body {
   position: relative;
   width: 40px;
   height: 22px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--toggle-track);
   border-radius: 11px;
   transition: all 0.3s ease;
   flex-shrink: 0;
@@ -2952,7 +2964,7 @@ body {
   left: 3px;
   width: 16px;
   height: 16px;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--toggle-knob);
   border-radius: 50%;
   transition: all 0.3s ease;
 }
@@ -2991,11 +3003,11 @@ body {
   line-height: 1.6;
   resize: vertical;
   min-height: 80px;
-  background: var(--card-bg, rgba(255, 255, 255, 0.03));
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 10px;
   padding: 12px;
-  color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  color: var(--text-primary);
   transition: border-color 0.2s ease;
 }
 
@@ -3006,7 +3018,7 @@ body {
 
 .notes-hint {
   font-size: 11px;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.4));
+  color: var(--text-secondary);
   margin-top: 4px;
 }
 
@@ -3087,10 +3099,10 @@ body {
   bottom: 20px;
   right: 20px;
   width: 300px;
-  background: rgba(20, 20, 35, 0.95);
+  background: var(--panel-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -3110,7 +3122,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .pomodoro-title {
@@ -3119,7 +3131,7 @@ body {
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
 }
 
 .pomodoro-title i {
@@ -3134,7 +3146,7 @@ body {
 .pomodoro-btn-mini {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
@@ -3143,8 +3155,8 @@ body {
 }
 
 .pomodoro-btn-mini:hover {
-  color: rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  background: var(--glass-bg-hover);
 }
 
 .pomodoro-body {
@@ -3162,7 +3174,7 @@ body {
 
 .pomodoro-task-name {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted);
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -3173,7 +3185,7 @@ body {
 .pomodoro-modes {
   display: flex;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--glass-bg);
   border-radius: 8px;
   padding: 3px;
   width: 100%;
@@ -3184,7 +3196,7 @@ body {
   padding: 6px 8px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted);
   font-size: 11px;
   font-weight: 500;
   border-radius: 6px;
@@ -3198,7 +3210,7 @@ body {
 }
 
 .pomodoro-mode:hover:not(.active) {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
 }
 
 .pomodoro-ring-container {
@@ -3215,7 +3227,7 @@ body {
 
 .pomodoro-ring-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.06);
+  stroke: var(--glass-border);
   stroke-width: 6;
 }
 
@@ -3234,7 +3246,7 @@ body {
   transform: translate(-50%, -50%);
   font-size: 28px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -3276,14 +3288,14 @@ body {
 
 .pomodoro-btn.secondary {
   flex: 0;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.6);
+  background: var(--glass-bg-hover);
+  color: var(--text-secondary);
   padding: 10px 14px;
 }
 
 .pomodoro-btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--glass-border);
+  color: var(--text-primary);
   box-shadow: none;
 }
 
@@ -3303,12 +3315,12 @@ body {
 .pomodoro-stat-value {
   font-size: 16px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
 }
 
 .pomodoro-stat-label {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -3322,16 +3334,16 @@ body {
 
 .pomodoro-task-picker label {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
 }
 
 .pomodoro-task-picker select {
   width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.8);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
   font-size: 12px;
   cursor: pointer;
 }

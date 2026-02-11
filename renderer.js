@@ -116,6 +116,16 @@ const themes = {
       '--shadow-lg': '0 8px 32px rgba(0, 0, 0, 0.12)',
       '--shadow-glow-blue': '0 0 20px rgba(91, 106, 191, 0.2)',
       '--shadow-glow-purple': '0 0 20px rgba(124, 58, 237, 0.2)',
+      '--panel-bg': 'rgba(255, 255, 255, 0.97)',
+      '--titlebar-bg': 'rgba(228, 228, 236, 0.9)',
+      '--overlay-bg': 'rgba(0, 0, 0, 0.3)',
+      '--scrollbar-thumb': 'rgba(0, 0, 0, 0.12)',
+      '--scrollbar-thumb-hover': 'rgba(0, 0, 0, 0.22)',
+      '--glass-shine': 'rgba(0, 0, 0, 0.02)',
+      '--glass-shine-hover': 'rgba(0, 0, 0, 0.04)',
+      '--toggle-knob': 'rgba(0, 0, 0, 0.35)',
+      '--toggle-track': 'rgba(0, 0, 0, 0.1)',
+      '--select-arrow': 'rgba(26, 26, 46, 0.4)',
     }
   },
 };
