@@ -161,6 +161,87 @@ let selectedTasks = new Set();
 let selectionMode = false;
 let selectedNewTagColor = tagColorPalette[0];
 
+// ─── Undo System ─────────────────────────────────────
+const undoStack = [];
+const MAX_UNDO = 20;
+
+function pushUndo(action, data) {
+  undoStack.push({ action, data, timestamp: Date.now() });
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+}
+
+function performUndo() {
+  if (undoStack.length === 0) {
+    showToast('Nada para desfazer', 'info');
+    return;
+  }
+  const entry = undoStack.pop();
+  const { action, data } = entry;
+
+  switch (action) {
+    case 'delete-task': {
+      state.columns[data.column].tasks.splice(data.index, 0, data.task);
+      showToast(`Tarefa "${data.task.title}" restaurada`, 'success');
+      break;
+    }
+    case 'move-task': {
+      const idx = state.columns[data.toColumn].tasks.findIndex(t => t.id === data.task.id);
+      if (idx > -1) state.columns[data.toColumn].tasks.splice(idx, 1);
+      state.columns[data.fromColumn].tasks.splice(data.fromIndex, 0, data.task);
+      const statusNames = { pending: 'Pendente', wip: 'Em Progresso', done: 'Concluído' };
+      showToast(`Movido de volta para ${statusNames[data.fromColumn]}`, 'info');
+      break;
+    }
+    case 'edit-task': {
+      for (const col of Object.keys(state.columns)) {
+        const idx = state.columns[col].tasks.findIndex(t => t.id === data.taskId);
+        if (idx > -1) {
+          state.columns[col].tasks[idx] = { ...data.previousState };
+          break;
+        }
+      }
+      showToast('Edição desfeita', 'success');
+      break;
+    }
+    case 'bulk-delete': {
+      data.tasks.forEach(item => {
+        state.columns[item.column].tasks.splice(item.index, 0, item.task);
+      });
+      showToast(`${data.tasks.length} tarefas restauradas`, 'success');
+      break;
+    }
+    case 'bulk-move': {
+      data.moves.forEach(item => {
+        const idx = state.columns[item.toColumn].tasks.findIndex(t => t.id === item.task.id);
+        if (idx > -1) state.columns[item.toColumn].tasks.splice(idx, 1);
+        state.columns[item.fromColumn].tasks.splice(item.fromIndex, 0, item.task);
+      });
+      showToast(`${data.moves.length} tarefas restauradas`, 'success');
+      break;
+    }
+    case 'clear-done': {
+      state.columns.done.tasks = data.tasks;
+      showToast(`${data.tasks.length} tarefas restauradas`, 'success');
+      break;
+    }
+  }
+
+  save();
+  render();
+}
+
+// ─── Pomodoro Timer ──────────────────────────────────
+let pomodoroState = {
+  running: false,
+  mode: 'work', // work | short | long
+  timeRemaining: 25 * 60,
+  totalTime: 25 * 60,
+  interval: null,
+  sessions: 0,
+  totalFocusSeconds: 0,
+  linkedTaskId: null,
+};
+
 // ─── Init ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   injectSVGGradient();
@@ -200,6 +281,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Setup notification listener
   setupNotificationListener();
+
+  // Setup pomodoro timer
+  initPomodoro();
 });
 
 // ─── Auto-Updater UI ────────────────────────────────
@@ -407,10 +491,11 @@ function initEventListeners() {
   // Clear done button
   document.getElementById('btn-clear-done').addEventListener('click', () => {
     showConfirm('Limpar todas as tarefas concluídas?', 'Isso irá excluir permanentemente todas as tarefas na coluna Concluído.', () => {
+      pushUndo('clear-done', { tasks: [...state.columns.done.tasks] });
       state.columns.done.tasks = [];
       save();
       render();
-      showToast('Tarefas concluídas removidas', 'success');
+      showToast('Tarefas concluídas removidas (Ctrl+Z para desfazer)', 'success');
     });
   });
 
@@ -427,10 +512,16 @@ function initEventListeners() {
       e.preventDefault();
       searchInput.focus();
     }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      e.preventDefault();
+      performUndo();
+    }
     if (e.key === 'Escape') {
       closeTaskModal();
       closeConfirm();
     }
+    // Keyboard navigation for task cards
+    handleBoardKeyNavigation(e);
   });
 
   // Priority filter
@@ -716,6 +807,11 @@ function createTaskCard(task, column) {
     descHtml = `<p class="task-card-desc">${escapeHtml(task.description)}</p>`;
   }
 
+  let notesIndicator = '';
+  if (task.notes) {
+    notesIndicator = `<span class="task-card-notes-icon" title="Contém notas"><i class="ri-sticky-note-line"></i></span>`;
+  }
+
   const selectCheck = selectionMode
     ? `<label class="task-select" onclick="event.stopPropagation()">
         <input type="checkbox" class="task-checkbox" ${selectedTasks.has(task.id) ? 'checked' : ''}>
@@ -738,6 +834,7 @@ function createTaskCard(task, column) {
     <div class="task-card-footer">
       ${dueHtml}
       ${recurrenceHtml}
+      ${notesIndicator}
       <span class="task-card-id">#${task.id}</span>
     </div>
   `;
@@ -828,6 +925,12 @@ function handleDrop(e, targetColumn) {
 
   const sourceIdx = state.columns[draggedFrom].tasks.findIndex(t => t.id === draggedTask.id);
   if (sourceIdx > -1) {
+    pushUndo('move-task', {
+      task: { ...draggedTask },
+      fromColumn: draggedFrom,
+      toColumn: targetColumn,
+      fromIndex: sourceIdx
+    });
     state.columns[draggedFrom].tasks.splice(sourceIdx, 1);
   }
 
@@ -877,6 +980,7 @@ function openTaskModal(column = 'pending', task = null) {
     document.getElementById('task-due-input').value = task.dueDate || '';
     document.getElementById('task-column-input').value = column;
     document.getElementById('task-recurrence-input').value = task.recurrence || 'none';
+    document.getElementById('task-notes-input').value = task.notes || '';
     document.getElementById('task-id-input').value = task.id;
   } else {
     title.textContent = 'Nova Tarefa';
@@ -988,6 +1092,7 @@ function saveTask() {
   const dueDate = document.getElementById('task-due-input').value;
   const description = document.getElementById('task-desc-input').value.trim();
   const recurrence = document.getElementById('task-recurrence-input').value;
+  const notes = document.getElementById('task-notes-input').value.trim();
 
   const tags = [];
   document.querySelectorAll('#tag-selector .tag-option.selected').forEach(el => {
@@ -1008,6 +1113,8 @@ function saveTask() {
       const idx = state.columns[col].tasks.findIndex(t => t.id === editingTaskId);
       if (idx > -1) {
         const task = state.columns[col].tasks[idx];
+        // Save previous state for undo
+        pushUndo('edit-task', { taskId: task.id, previousState: { ...task, subtasks: [...(task.subtasks || [])], tags: [...(task.tags || [])] } });
         task.title = titleVal;
         task.description = description;
         task.priority = priority;
@@ -1015,6 +1122,7 @@ function saveTask() {
         task.tags = tags;
         task.subtasks = subtasks;
         task.recurrence = recurrence !== 'none' ? recurrence : undefined;
+        task.notes = notes;
 
         if (col !== column) {
           state.columns[col].tasks.splice(idx, 1);
@@ -1045,6 +1153,7 @@ function saveTask() {
       tags,
       subtasks,
       recurrence: recurrence !== 'none' ? recurrence : undefined,
+      notes,
       createdAt: Date.now()
     };
     state.columns[column].tasks.unshift(task);
@@ -1061,13 +1170,15 @@ function deleteTask(taskId) {
   for (const col of Object.keys(state.columns)) {
     const idx = state.columns[col].tasks.findIndex(t => t.id === taskId);
     if (idx > -1) {
+      const task = { ...state.columns[col].tasks[idx] };
+      pushUndo('delete-task', { task, column: col, index: idx });
       state.columns[col].tasks.splice(idx, 1);
       break;
     }
   }
   save();
   render();
-  showToast('Tarefa excluída', 'success');
+  showToast('Tarefa excluída (Ctrl+Z para desfazer)', 'success');
 }
 
 // ─── Bulk Selection ──────────────────────────────────
@@ -1099,12 +1210,15 @@ function updateBulkBar() {
 function bulkMoveTo(targetColumn) {
   const names = { pending: 'Pendente', wip: 'Em Progresso', done: 'Concluído' };
   let moved = 0;
+  const moves = [];
   selectedTasks.forEach(id => {
     for (const col of Object.keys(state.columns)) {
       const idx = state.columns[col].tasks.findIndex(t => t.id === id);
       if (idx > -1) {
-        const [task] = state.columns[col].tasks.splice(idx, 1);
-        state.columns[targetColumn].tasks.unshift(task);
+        const task = { ...state.columns[col].tasks[idx] };
+        moves.push({ task, fromColumn: col, toColumn: targetColumn, fromIndex: idx });
+        const [removed] = state.columns[col].tasks.splice(idx, 1);
+        state.columns[targetColumn].tasks.unshift(removed);
         if (targetColumn === 'done') {
           const today = new Date().toISOString().split('T')[0];
           if (!state.history) state.history = [];
@@ -1115,30 +1229,35 @@ function bulkMoveTo(targetColumn) {
       }
     }
   });
+  if (moves.length > 0) pushUndo('bulk-move', { moves });
   selectedTasks.clear();
   updateBulkBar();
   save();
   render();
-  showToast(`${moved} tarefa(s) movida(s) para ${names[targetColumn]}`, 'success');
+  showToast(`${moved} tarefa(s) movida(s) para ${names[targetColumn]} (Ctrl+Z para desfazer)`, 'success');
 }
 
 function bulkDelete() {
   showConfirm(`Excluir ${selectedTasks.size} tarefa(s)?`, 'Esta ação não pode ser desfeita.', () => {
+    const deletedTasks = [];
     selectedTasks.forEach(id => {
       for (const col of Object.keys(state.columns)) {
         const idx = state.columns[col].tasks.findIndex(t => t.id === id);
         if (idx > -1) {
+          const task = { ...state.columns[col].tasks[idx] };
+          deletedTasks.push({ task, column: col, index: idx });
           state.columns[col].tasks.splice(idx, 1);
           break;
         }
       }
     });
+    if (deletedTasks.length > 0) pushUndo('bulk-delete', { tasks: deletedTasks });
     const count = selectedTasks.size;
     selectedTasks.clear();
     updateBulkBar();
     save();
     render();
-    showToast(`${count} tarefa(s) excluída(s)`, 'success');
+    showToast(`${count} tarefa(s) excluída(s) (Ctrl+Z para desfazer)`, 'success');
   });
 }
 
@@ -1620,4 +1739,327 @@ function formatDate(dateStr) {
 function formatDateLong(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('pt-BR', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+// ─── Keyboard Navigation ─────────────────────────────
+let focusedCardIndex = -1;
+let focusedColumn = 'pending';
+
+function handleBoardKeyNavigation(e) {
+  // Only navigate when board view is active and no modal is open
+  const boardView = document.getElementById('board-view');
+  if (!boardView || !boardView.classList.contains('active')) return;
+  if (document.getElementById('task-modal').classList.contains('visible')) return;
+  if (document.getElementById('confirm-modal').classList.contains('visible')) return;
+  if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA' || document.activeElement?.tagName === 'SELECT') return;
+
+  const columns = ['pending', 'wip', 'done'];
+  const colIdx = columns.indexOf(focusedColumn);
+
+  switch (e.key) {
+    case 'ArrowDown': {
+      e.preventDefault();
+      const cards = getColumnCards(focusedColumn);
+      if (cards.length === 0) return;
+      focusedCardIndex = Math.min(focusedCardIndex + 1, cards.length - 1);
+      focusCard(focusedColumn, focusedCardIndex);
+      break;
+    }
+    case 'ArrowUp': {
+      e.preventDefault();
+      const cards = getColumnCards(focusedColumn);
+      if (cards.length === 0) return;
+      focusedCardIndex = Math.max(focusedCardIndex - 1, 0);
+      focusCard(focusedColumn, focusedCardIndex);
+      break;
+    }
+    case 'ArrowRight': {
+      e.preventDefault();
+      if (colIdx < columns.length - 1) {
+        focusedColumn = columns[colIdx + 1];
+        focusedCardIndex = 0;
+        focusCard(focusedColumn, focusedCardIndex);
+      }
+      break;
+    }
+    case 'ArrowLeft': {
+      e.preventDefault();
+      if (colIdx > 0) {
+        focusedColumn = columns[colIdx - 1];
+        focusedCardIndex = 0;
+        focusCard(focusedColumn, focusedCardIndex);
+      }
+      break;
+    }
+    case 'Enter': {
+      const cards = getColumnCards(focusedColumn);
+      if (focusedCardIndex >= 0 && focusedCardIndex < cards.length) {
+        e.preventDefault();
+        const card = cards[focusedCardIndex];
+        const taskId = parseInt(card.dataset.taskId);
+        const task = findTaskById(taskId);
+        if (task) openTaskModal(focusedColumn, task.task);
+      }
+      break;
+    }
+    case 'Delete':
+    case 'Backspace': {
+      if (e.target === document.body || e.target === document.documentElement) {
+        const cards = getColumnCards(focusedColumn);
+        if (focusedCardIndex >= 0 && focusedCardIndex < cards.length) {
+          e.preventDefault();
+          const card = cards[focusedCardIndex];
+          const taskId = parseInt(card.dataset.taskId);
+          const task = findTaskById(taskId);
+          if (task) {
+            showConfirm('Excluir esta tarefa?', `"${task.task.title}" será excluída permanentemente.`, () => {
+              deleteTask(taskId);
+            });
+          }
+        }
+      }
+      break;
+    }
+    case 'n':
+    case 'N': {
+      if (!e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        openTaskModal(focusedColumn);
+      }
+      break;
+    }
+  }
+}
+
+function getColumnCards(column) {
+  const list = document.getElementById(`list-${column}`);
+  if (!list) return [];
+  return Array.from(list.querySelectorAll('.task-card'));
+}
+
+function focusCard(column, index) {
+  // Remove previous focus
+  document.querySelectorAll('.task-card.kb-focused').forEach(c => c.classList.remove('kb-focused'));
+  const cards = getColumnCards(column);
+  if (index >= 0 && index < cards.length) {
+    cards[index].classList.add('kb-focused');
+    cards[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function findTaskById(id) {
+  for (const col of Object.keys(state.columns)) {
+    const task = state.columns[col].tasks.find(t => t.id === id);
+    if (task) return { task, column: col };
+  }
+  return null;
+}
+
+// ─── Pomodoro Timer ──────────────────────────────────
+function initPomodoro() {
+  const widget = document.getElementById('pomodoro-widget');
+  const navBtn = document.getElementById('pomodoro-nav');
+  const closeBtn = document.getElementById('pomodoro-close');
+  const minimizeBtn = document.getElementById('pomodoro-minimize');
+  const startBtn = document.getElementById('pomodoro-start');
+  const resetBtn = document.getElementById('pomodoro-reset');
+  const body = document.getElementById('pomodoro-body');
+
+  // Toggle widget
+  navBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (widget.style.display === 'none' || !widget.style.display) {
+      widget.style.display = 'flex';
+      navBtn.classList.add('active');
+      populateTaskPicker();
+    } else {
+      widget.style.display = 'none';
+      navBtn.classList.remove('active');
+    }
+  });
+
+  closeBtn.addEventListener('click', () => {
+    if (pomodoroState.running) {
+      showConfirm('Fechar Pomodoro?', 'O timer ainda está rodando. Deseja fechar?', () => {
+        stopPomodoro();
+        widget.style.display = 'none';
+        navBtn.classList.remove('active');
+      });
+    } else {
+      widget.style.display = 'none';
+      navBtn.classList.remove('active');
+    }
+  });
+
+  minimizeBtn.addEventListener('click', () => {
+    body.classList.toggle('minimized');
+  });
+
+  // Mode buttons
+  document.querySelectorAll('.pomodoro-mode').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (pomodoroState.running) return;
+      document.querySelectorAll('.pomodoro-mode').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      pomodoroState.mode = btn.dataset.mode;
+      pomodoroState.totalTime = parseInt(btn.dataset.minutes) * 60;
+      pomodoroState.timeRemaining = pomodoroState.totalTime;
+      updatePomodoroDisplay();
+    });
+  });
+
+  // Start/Pause
+  startBtn.addEventListener('click', () => {
+    if (pomodoroState.running) {
+      pausePomodoro();
+    } else {
+      startPomodoro();
+    }
+  });
+
+  // Reset
+  resetBtn.addEventListener('click', () => {
+    stopPomodoro();
+    pomodoroState.timeRemaining = pomodoroState.totalTime;
+    updatePomodoroDisplay();
+  });
+
+  // Task picker
+  document.getElementById('pomodoro-task-select').addEventListener('change', (e) => {
+    const taskId = parseInt(e.target.value);
+    pomodoroState.linkedTaskId = taskId || null;
+    const taskName = document.getElementById('pomodoro-task-name');
+    if (taskId) {
+      const found = findTaskById(taskId);
+      taskName.textContent = found ? found.task.title : 'Nenhuma tarefa';
+    } else {
+      taskName.textContent = 'Nenhuma tarefa selecionada';
+    }
+  });
+
+  updatePomodoroDisplay();
+}
+
+function populateTaskPicker() {
+  const select = document.getElementById('pomodoro-task-select');
+  const currentVal = select.value;
+  select.innerHTML = '<option value="">Nenhuma</option>';
+  ['pending', 'wip'].forEach(col => {
+    state.columns[col].tasks.forEach(task => {
+      const opt = document.createElement('option');
+      opt.value = task.id;
+      opt.textContent = `${task.title} (${col === 'pending' ? 'Pendente' : 'Em Progresso'})`;
+      if (task.id === pomodoroState.linkedTaskId) opt.selected = true;
+      select.appendChild(opt);
+    });
+  });
+}
+
+function startPomodoro() {
+  pomodoroState.running = true;
+  const startBtn = document.getElementById('pomodoro-start');
+  startBtn.innerHTML = '<i class="ri-pause-fill"></i> Pausar';
+  startBtn.classList.add('running');
+
+  pomodoroState.interval = setInterval(() => {
+    pomodoroState.timeRemaining--;
+    if (pomodoroState.mode === 'work') {
+      pomodoroState.totalFocusSeconds++;
+    }
+    updatePomodoroDisplay();
+
+    if (pomodoroState.timeRemaining <= 0) {
+      completePomodoro();
+    }
+  }, 1000);
+}
+
+function pausePomodoro() {
+  pomodoroState.running = false;
+  clearInterval(pomodoroState.interval);
+  const startBtn = document.getElementById('pomodoro-start');
+  startBtn.innerHTML = '<i class="ri-play-fill"></i> Continuar';
+  startBtn.classList.remove('running');
+}
+
+function stopPomodoro() {
+  pomodoroState.running = false;
+  clearInterval(pomodoroState.interval);
+  const startBtn = document.getElementById('pomodoro-start');
+  startBtn.innerHTML = '<i class="ri-play-fill"></i> Iniciar';
+  startBtn.classList.remove('running');
+  document.getElementById('pomodoro-nav-time').textContent = '';
+}
+
+function completePomodoro() {
+  stopPomodoro();
+
+  if (pomodoroState.mode === 'work') {
+    pomodoroState.sessions++;
+    showToast('🍅 Sessão de foco concluída! Hora de uma pausa.', 'success');
+
+    // Save focus time to linked task
+    if (pomodoroState.linkedTaskId) {
+      const found = findTaskById(pomodoroState.linkedTaskId);
+      if (found) {
+        if (!found.task.focusTime) found.task.focusTime = 0;
+        found.task.focusTime += pomodoroState.totalTime;
+        save();
+      }
+    }
+
+    // Auto-switch to short break (or long after 4 sessions)
+    if (pomodoroState.sessions % 4 === 0) {
+      switchPomodoroMode('long');
+    } else {
+      switchPomodoroMode('short');
+    }
+  } else {
+    showToast('⏰ Pausa terminada! Pronto para focar de novo?', 'info');
+    switchPomodoroMode('work');
+  }
+
+  updatePomodoroStats();
+}
+
+function switchPomodoroMode(mode) {
+  pomodoroState.mode = mode;
+  document.querySelectorAll('.pomodoro-mode').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+    if (b.dataset.mode === mode) {
+      pomodoroState.totalTime = parseInt(b.dataset.minutes) * 60;
+    }
+  });
+  pomodoroState.timeRemaining = pomodoroState.totalTime;
+  updatePomodoroDisplay();
+}
+
+function updatePomodoroDisplay() {
+  const minutes = Math.floor(pomodoroState.timeRemaining / 60);
+  const seconds = pomodoroState.timeRemaining % 60;
+  const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+  document.getElementById('pomodoro-time').textContent = timeStr;
+
+  // Update ring
+  const ring = document.getElementById('pomodoro-ring-fill');
+  const circumference = 2 * Math.PI * 52;
+  const progress = pomodoroState.timeRemaining / pomodoroState.totalTime;
+  ring.style.strokeDasharray = circumference;
+  ring.style.strokeDashoffset = circumference * (1 - progress);
+
+  // Update nav badge when running
+  if (pomodoroState.running) {
+    document.getElementById('pomodoro-nav-time').textContent = timeStr;
+  }
+
+  updatePomodoroStats();
+}
+
+function updatePomodoroStats() {
+  document.getElementById('pomodoro-sessions').textContent = pomodoroState.sessions;
+  const totalMin = Math.round(pomodoroState.totalFocusSeconds / 60);
+  document.getElementById('pomodoro-total-time').textContent = totalMin >= 60
+    ? `${Math.floor(totalMin / 60)}h${totalMin % 60}min`
+    : `${totalMin}min`;
 }

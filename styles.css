@@ -2982,3 +2982,360 @@ body {
 .task-card-recurrence i {
   font-size: 12px;
 }
+
+/* ─── Task Notes ─────────────────────────────────────── */
+.task-notes-textarea {
+  font-family: 'Inter', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 80px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  padding: 12px;
+  color: var(--text-primary, rgba(255, 255, 255, 0.9));
+  transition: border-color 0.2s ease;
+}
+
+.task-notes-textarea:focus {
+  border-color: #6c8cff;
+  outline: none;
+}
+
+.notes-hint {
+  font-size: 11px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.4));
+  margin-top: 4px;
+}
+
+.task-card-notes-icon {
+  display: flex;
+  align-items: center;
+  color: #facc15;
+  font-size: 13px;
+  opacity: 0.7;
+  margin-left: auto;
+}
+
+.task-card-notes-icon i {
+  font-size: 14px;
+}
+
+/* ─── Keyboard Focus ─────────────────────────────────── */
+.task-card.kb-focused {
+  outline: 2px solid #6c8cff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(108, 140, 255, 0.15), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ─── Pomodoro Widget ────────────────────────────────── */
+.pomodoro-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.pomodoro-nav:hover {
+  background: var(--glass-bg-hover);
+  color: var(--text-primary);
+  transform: translateX(4px);
+}
+
+.pomodoro-nav.active {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+}
+
+.pomodoro-nav.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: #f87171;
+  border-radius: 0 4px 4px 0;
+}
+
+.pomodoro-nav i {
+  font-size: 18px;
+}
+
+.pomodoro-nav-time {
+  font-size: 10px;
+  font-weight: 600;
+  color: #f87171;
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.pomodoro-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  background: rgba(20, 20, 35, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(108, 140, 255, 0.05);
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.pomodoro-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pomodoro-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.pomodoro-title i {
+  color: #f87171;
+}
+
+.pomodoro-controls-top {
+  display: flex;
+  gap: 4px;
+}
+
+.pomodoro-btn-mini {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.pomodoro-btn-mini:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.pomodoro-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.3s ease;
+}
+
+.pomodoro-body.minimized {
+  display: none;
+}
+
+.pomodoro-task-name {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.pomodoro-modes {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 3px;
+  width: 100%;
+}
+
+.pomodoro-mode {
+  flex: 1;
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pomodoro-mode.active {
+  background: rgba(108, 140, 255, 0.15);
+  color: #6c8cff;
+}
+
+.pomodoro-mode:hover:not(.active) {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.pomodoro-ring-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.pomodoro-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pomodoro-ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 6;
+}
+
+.pomodoro-ring-fill {
+  fill: none;
+  stroke: #6c8cff;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.pomodoro-time {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  font-variant-numeric: tabular-nums;
+}
+
+.pomodoro-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.pomodoro-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6c8cff, #5a7af5);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.pomodoro-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(108, 140, 255, 0.3);
+}
+
+.pomodoro-btn.running {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+}
+
+.pomodoro-btn.running:hover {
+  box-shadow: 0 4px 15px rgba(248, 113, 113, 0.3);
+}
+
+.pomodoro-btn.secondary {
+  flex: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 10px 14px;
+}
+
+.pomodoro-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: none;
+}
+
+.pomodoro-stats {
+  display: flex;
+  gap: 24px;
+  padding: 8px 0;
+}
+
+.pomodoro-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.pomodoro-stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.pomodoro-stat-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pomodoro-task-picker {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pomodoro-task-picker label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.pomodoro-task-picker select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.pomodoro-task-picker select:focus {
+  outline: none;
+  border-color: #6c8cff;
+}

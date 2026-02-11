@@ -99,6 +99,11 @@
           <i class="ri-settings-3-line"></i>
           <span>Configurações</span>
         </a>
+        <a href="#" class="pomodoro-nav" id="pomodoro-nav" title="Pomodoro Timer">
+          <i class="ri-timer-line"></i>
+          <span>Pomodoro</span>
+          <span class="pomodoro-nav-time" id="pomodoro-nav-time"></span>
+        </a>
       </nav>
 
       <div class="sidebar-section">
@@ -438,6 +443,11 @@
           <label for="task-desc-input">Descrição</label>
           <textarea id="task-desc-input" placeholder="Adicione mais detalhes..." rows="3"></textarea>
         </div>
+        <div class="form-group">
+          <label for="task-notes-input"><i class="ri-sticky-note-line"></i> Notas / Comentários</label>
+          <textarea id="task-notes-input" placeholder="Anotações, links, referências..." rows="4" class="task-notes-textarea"></textarea>
+          <div class="notes-hint">Texto livre para anotações adicionais sobre esta tarefa</div>
+        </div>
         <div class="form-row">
           <div class="form-group">
             <label for="task-priority-input">Prioridade</label>
@@ -527,6 +537,63 @@
 
   <!-- Toast Container -->
   <div class="toast-container" id="toast-container"></div>
+
+  <!-- Pomodoro Timer Widget -->
+  <div class="pomodoro-widget" id="pomodoro-widget" style="display:none">
+    <div class="pomodoro-header">
+      <div class="pomodoro-title">
+        <i class="ri-timer-line"></i>
+        <span>Pomodoro</span>
+      </div>
+      <div class="pomodoro-controls-top">
+        <button class="pomodoro-btn-mini" id="pomodoro-minimize" title="Minimizar">
+          <i class="ri-subtract-line"></i>
+        </button>
+        <button class="pomodoro-btn-mini" id="pomodoro-close" title="Fechar">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+    </div>
+    <div class="pomodoro-body" id="pomodoro-body">
+      <div class="pomodoro-task-name" id="pomodoro-task-name">Nenhuma tarefa selecionada</div>
+      <div class="pomodoro-modes">
+        <button class="pomodoro-mode active" data-mode="work" data-minutes="25">Foco</button>
+        <button class="pomodoro-mode" data-mode="short" data-minutes="5">Pausa Curta</button>
+        <button class="pomodoro-mode" data-mode="long" data-minutes="15">Pausa Longa</button>
+      </div>
+      <div class="pomodoro-ring-container">
+        <svg class="pomodoro-ring" viewBox="0 0 120 120">
+          <circle class="pomodoro-ring-bg" cx="60" cy="60" r="52" />
+          <circle class="pomodoro-ring-fill" id="pomodoro-ring-fill" cx="60" cy="60" r="52" />
+        </svg>
+        <div class="pomodoro-time" id="pomodoro-time">25:00</div>
+      </div>
+      <div class="pomodoro-actions">
+        <button class="pomodoro-btn" id="pomodoro-start">
+          <i class="ri-play-fill"></i> Iniciar
+        </button>
+        <button class="pomodoro-btn secondary" id="pomodoro-reset">
+          <i class="ri-restart-line"></i>
+        </button>
+      </div>
+      <div class="pomodoro-stats">
+        <div class="pomodoro-stat">
+          <span class="pomodoro-stat-value" id="pomodoro-sessions">0</span>
+          <span class="pomodoro-stat-label">Sessões</span>
+        </div>
+        <div class="pomodoro-stat">
+          <span class="pomodoro-stat-value" id="pomodoro-total-time">0min</span>
+          <span class="pomodoro-stat-label">Tempo Total</span>
+        </div>
+      </div>
+      <div class="pomodoro-task-picker">
+        <label>Vincular tarefa:</label>
+        <select id="pomodoro-task-select">
+          <option value="">Nenhuma</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
   <script src="renderer.js"></script>
 </body>
